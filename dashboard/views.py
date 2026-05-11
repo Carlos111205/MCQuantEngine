@@ -13,6 +13,7 @@ from django.conf import settings
 
 def download_study_material(request, file_type):
     """Serve the PDF or PPTX study materials with correct headers"""
+    # Use static files path
     base_path = os.path.join(settings.BASE_DIR, 'dashboard', 'static', 'dashboard', 'docs')
     
     if file_type == 'pdf':
@@ -26,17 +27,10 @@ def download_study_material(request, file_type):
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid file type'}, status=404)
 
+    # On Vercel, if file is missing, we can't create it in the static folder.
+    # But since these are in the repo, they should be there.
     if not os.path.exists(file_path):
-        # Create a simple informative text file if it doesn't exist
-        os.makedirs(base_path, exist_ok=True)
-        with open(file_path, 'w') as f:
-            f.write(f"MCQuantEngine Study Material ({file_type.upper()})\n\n")
-            f.write("Created by:\n")
-            f.write("1. Carlos Chirenda N02421747B\n")
-            f.write("2. Ashley Mutizwa N02420496T\n")
-            f.write("3. Mary Chidziwa N02418836E\n")
-            f.write("4. Bernard Gudyanga N02421383H\n")
-            f.write("5. Trevor Ndonga N02422382F\n")
+        return JsonResponse({'status': 'error', 'message': f'Material file {filename} not found in the deployment.'}, status=404)
 
     return FileResponse(open(file_path, 'rb'), content_type=content_type, as_attachment=True, filename=filename)
 
