@@ -1,0 +1,327 @@
+{% extends 'dashboard/base.html' %}
+{% load dashboard_extras %}
+{% load static %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header -->
+    <div class="relative rounded-xl overflow-hidden border border-cyber-pink/20">
+        <img src="{% static 'dashboard/images/monte-carlo-bg.jpg' %}" alt="" class="absolute inset-0 w-full h-full object-cover opacity-20">
+        <div class="relative p-6 bg-gradient-to-r from-[hsl(220,25%,4%)]/95 to-transparent">
+            <div class="flex items-center gap-3">
+                <div class="size-10 rounded-lg bg-cyber-pink/10 border border-cyber-pink/30 flex items-center justify-center">
+                    <i data-lucide="atom" class="size-5 text-cyber-pink"></i>
+                </div>
+                <div>
+                    <h1 class="font-display text-lg font-bold text-white tracking-wide">Monte Carlo Simulator</h1>
+                    <p class="text-xs font-mono text-[hsl(210,8%,45%)]">
+                        Simulate thousands of equity paths • Assess risk of ruin
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-4">
+        <!-- Parameters Panel -->
+        <div class="col-span-12 lg:col-span-4 xl:col-span-3">
+            <div class="p-6 rounded-xl bg-card border border-border hud-corners">
+                <h3 class="text-sm font-display font-bold text-white uppercase tracking-wider mb-6">Simulation Parameters</h3>
+                <form method="POST" class="space-y-4">
+                    {% csrf_token %}
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <label class="text-xs font-mono text-cyber-pink/60">Win Rate (%)</label>
+                            <span class="text-xs font-mono text-white">{{ params.winRate }}%</span>
+                        </div>
+                        <input type="range" name="winRate" min="30" max="85" step="1" value="{{ params.winRate }}" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyber-pink">
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <label class="text-xs font-mono text-cyber-pink/60">Risk:Reward (:1)</label>
+                            <span class="text-xs font-mono text-white">{{ params.riskReward }}</span>
+                        </div>
+                        <input type="range" name="riskReward" min="0.5" max="5" step="0.1" value="{{ params.riskReward }}" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyber-pink">
+                    </div>
+                    <div class="space-y-4 p-4 rounded-lg bg-white/5 border border-border">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-mono text-cyber-cyan">Position Sizing</label>
+                            <div class="flex gap-2">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="riskType" value="percent" class="hidden peer" {% if params.riskType == 'percent' %}checked{% endif %}>
+                                    <span class="px-2 py-1 text-[10px] font-mono border border-border rounded peer-checked:bg-cyber-cyan peer-checked:text-black transition-colors uppercase">Percent</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="riskType" value="fixed" class="hidden peer" {% if params.riskType == 'fixed' %}checked{% endif %}>
+                                    <span class="px-2 py-1 text-[10px] font-mono border border-border rounded peer-checked:bg-cyber-cyan peer-checked:text-black transition-colors uppercase">Fixed</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="percentRiskInput" class="space-y-2 {% if params.riskType != 'percent' %}hidden{% endif %}">
+                            <div class="flex justify-between">
+                                <label class="text-[10px] font-mono text-cyber-pink/60">Risk Per Trade (%)</label>
+                                <span class="text-xs font-mono text-white">{{ params.riskPerTrade }}%</span>
+                            </div>
+                            <input type="range" name="riskPerTrade" min="0.1" max="10" step="0.1" value="{{ params.riskPerTrade }}" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyber-pink">
+                        </div>
+
+                        <div id="fixedRiskInput" class="space-y-2 {% if params.riskType != 'fixed' %}hidden{% endif %}">
+                            <label class="text-[10px] font-mono text-cyber-pink/60 uppercase">Fixed Amount ($)</label>
+                            <input type="number" name="fixedAmount" value="{{ params.fixedAmount }}" class="w-full bg-background border border-border rounded px-3 py-2 text-xs font-mono text-white focus:border-cyber-pink/50 outline-none">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <label class="text-xs font-mono text-cyber-pink/60">Number of Trades</label>
+                            <span class="text-xs font-mono text-white">{{ params.numTrades }}</span>
+                        </div>
+                        <input type="range" name="numTrades" min="50" max="500" step="10" value="{{ params.numTrades }}" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyber-pink">
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <label class="text-xs font-mono text-cyber-pink/60">Simulations</label>
+                            <span class="text-xs font-mono text-white">{{ params.numSimulations }}</span>
+                        </div>
+                        <input type="range" name="numSimulations" min="100" max="5000" step="100" value="{{ params.numSimulations }}" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyber-pink">
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <label class="text-xs font-mono text-cyber-pink/60">Initial Balance ($)</label>
+                            <span class="text-xs font-mono text-white">${{ params.initialBalance }}</span>
+                        </div>
+                        <input type="range" name="initialBalance" min="1000" max="100000" step="1000" value="{{ params.initialBalance }}" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyber-pink">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-mono text-cyber-cyan/60 uppercase">Commission/Trade</label>
+                            <input type="number" name="commission" step="0.1" value="{{ params.commission }}" class="w-full bg-background border border-border rounded px-3 py-2 text-xs font-mono text-white focus:border-cyber-cyan/50 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-mono text-cyber-cyan/60 uppercase">Slippage (%)</label>
+                            <input type="number" name="slippage" step="0.1" value="{{ params.slippage }}" class="w-full bg-background border border-border rounded px-3 py-2 text-xs font-mono text-white focus:border-cyber-cyan/50 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 pt-2">
+                        <button type="submit" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-cyber-pink/20 border border-cyber-pink/40 text-cyber-pink font-mono text-xs font-bold hover:bg-cyber-pink/30 transition-all">
+                            <i data-lucide="play" class="size-3.5"></i>
+                            RUN SIM
+                        </button>
+                        <a href="{% url 'dashboard:simulator' %}" class="px-3 py-2.5 rounded-lg border border-[hsl(210,15%,18%)] text-[hsl(210,8%,50%)] font-mono text-xs hover:border-cyber-cyan/30 hover:text-cyber-cyan transition-all">
+                            <i data-lucide="rotate-ccw" class="size-3.5"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="col-span-12 lg:col-span-8 xl:col-span-9 space-y-4">
+            {% if results %}
+            <!-- Key Metrics -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="metricsRow">
+                <!-- Metrics will be filled by JS if needed, or just server side -->
+            </div>
+
+            <!-- Equity Cone -->
+            <div class="p-6 rounded-xl bg-card border border-border hud-corners">
+                <h3 class="text-sm font-display font-bold text-white uppercase tracking-wider mb-6">Equity Probability Cone</h3>
+                <div class="h-[300px]">
+                    <canvas id="equityConeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Final Balance Distribution -->
+                <div class="p-6 rounded-xl bg-card border border-border hud-corners">
+                    <h3 class="text-sm font-display font-bold text-white uppercase tracking-wider mb-6">Balance Distribution</h3>
+                    <div class="h-[240px]">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Monte Carlo Paths -->
+                <div class="p-6 rounded-xl bg-card border border-border hud-corners">
+                    <h3 class="text-sm font-display font-bold text-white uppercase tracking-wider mb-6">Simulation Paths (Top 50)</h3>
+                    <div class="h-[240px]">
+                        <canvas id="pathsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="h-full flex flex-col items-center justify-center p-12 rounded-xl bg-card border border-border border-dashed">
+                <i data-lucide="atom" class="size-12 text-cyber-pink/20 mb-4"></i>
+                <p class="text-sm font-mono text-cyber-pink/40">Adjust parameters and run simulation to see results</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Common JS for both initial load and results
+    document.addEventListener('DOMContentLoaded', () => {
+        // Toggle risk inputs
+        const riskTypeRadios = document.querySelectorAll('input[name="riskType"]');
+        const percentInput = document.getElementById('percentRiskInput');
+        const fixedInput = document.getElementById('fixedRiskInput');
+
+        riskTypeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'percent') {
+                    percentInput.classList.remove('hidden');
+                    fixedInput.classList.add('hidden');
+                } else {
+                    percentInput.classList.add('hidden');
+                    fixedInput.classList.remove('hidden');
+                }
+            });
+        });
+
+        // Range input value displays
+        const ranges = document.querySelectorAll('input[type="range"]');
+        ranges.forEach(range => {
+            range.addEventListener('input', (e) => {
+                const span = e.target.previousElementSibling.querySelector('span');
+                if (span) {
+                    let val = e.target.value;
+                    if (e.target.name === 'initialBalance') val = '$' + val;
+                    else if (['winRate', 'riskPerTrade'].includes(e.target.name)) val = val + '%';
+                    span.textContent = val;
+                }
+            });
+        });
+    });
+</script>
+
+{% if results %}
+<script>
+    const result = JSON.parse('{{ results|safe }}');
+    const distribution = JSON.parse('{{ distribution|safe }}');
+    
+    // Fill metrics
+    const metricsRow = document.getElementById('metricsRow');
+    if (metricsRow) {
+        const metrics = [
+            { label: 'Avg Return', value: (result.avgReturn >= 0 ? '+' : '') + result.avgReturn.toFixed(1) + '%', color: result.avgReturn >= 0 ? 'text-cyber-green' : 'text-cyber-red', icon: 'trending-up' },
+            { label: 'Max Drawdown', value: '-' + result.maxDrawdown.toFixed(1) + '%', color: 'text-cyber-orange', icon: 'trending-down' },
+            { label: 'Ruin Probability', value: result.ruinProbability.toFixed(2) + '%', color: result.ruinProbability < 5 ? 'text-cyber-green' : 'text-cyber-red', icon: 'alert-triangle' },
+            { label: 'Sharpe Ratio', value: result.sharpeRatio.toFixed(2), color: 'text-cyber-cyan', icon: 'percent' }
+        ];
+        
+        metricsRow.innerHTML = '';
+        metrics.forEach(m => {
+            metricsRow.innerHTML += `
+                <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i data-lucide="${m.icon}" class="size-3 ${m.color}"></i>
+                        <span class="text-[10px] font-mono text-white/40 uppercase tracking-wider">${m.label}</span>
+                    </div>
+                    <span class="text-xl font-display font-bold ${m.color}">${m.value}</span>
+                </div>
+            `;
+        });
+    }
+    lucide.createIcons();
+
+    // Equity Cone Chart
+    new Chart(document.getElementById('equityConeChart'), {
+        type: 'line',
+        data: {
+            labels: result.medianPath.map((_, i) => i),
+            datasets: [
+                {
+                    label: '95th Percentile',
+                    data: result.percentile95,
+                    borderColor: 'rgba(0, 230, 255, 0.3)',
+                    borderWidth: 1,
+                    fill: '+1',
+                    backgroundColor: 'rgba(0, 230, 255, 0.05)',
+                    pointRadius: 0
+                },
+                {
+                    label: 'Median',
+                    data: result.medianPath,
+                    borderColor: '#00E6FF',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false
+                },
+                {
+                    label: '5th Percentile',
+                    data: result.percentile5,
+                    borderColor: 'rgba(0, 230, 255, 0.3)',
+                    borderWidth: 1,
+                    fill: false,
+                    pointRadius: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: 'rgba(255, 255, 255, 0.3)', font: { size: 9 } } },
+                y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: 'rgba(255, 255, 255, 0.3)', font: { size: 9 } } }
+            }
+        }
+    });
+
+    // Distribution Chart
+    new Chart(document.getElementById('distributionChart'), {
+        type: 'bar',
+        data: {
+            labels: distribution.map(d => d.bucket),
+            datasets: [{
+                data: distribution.map(d => d.count),
+                backgroundColor: distribution.map(d => {
+                    const label = d.bucket;
+                    if (label.includes('-')) return 'rgba(230, 35, 60, 0.7)';
+                    return 'rgba(0, 230, 130, 0.7)';
+                }),
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: 'rgba(255, 255, 255, 0.3)', font: { size: 8 }, rotation: -45 } },
+                y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: 'rgba(255, 255, 255, 0.3)', font: { size: 9 } } }
+            }
+        }
+    });
+
+    // Paths Chart
+    new Chart(document.getElementById('pathsChart'), {
+        type: 'line',
+        data: {
+            labels: result.medianPath.map((_, i) => i),
+            datasets: result.paths.map(p => ({
+                data: p,
+                borderColor: 'rgba(0, 230, 255, 0.1)',
+                borderWidth: 1,
+                pointRadius: 0,
+                fill: false
+            }))
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { display: false },
+                y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: 'rgba(255, 255, 255, 0.3)', font: { size: 9 } } }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

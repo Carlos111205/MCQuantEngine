@@ -1,0 +1,198 @@
+{% extends 'dashboard/base.html' %}
+{% load dashboard_extras %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-2">
+        <div class="size-10 rounded-lg bg-cyber-orange/10 border border-cyber-orange/30 flex items-center justify-center">
+            <i data-lucide="shield" class="size-5 text-cyber-orange"></i>
+        </div>
+        <div>
+            <h1 class="font-display text-lg font-bold text-white tracking-wide">Risk Management</h1>
+            <p class="text-xs font-mono text-[hsl(210,8%,45%)]">Real-time exposure monitoring & limits</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-4">
+        <!-- Risk Rules Panel -->
+        <div class="col-span-12 lg:col-span-7">
+            <div class="p-6 rounded-xl bg-card border border-border hud-corners">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-sm font-display font-bold text-white uppercase tracking-wider">Active Risk Rules</h3>
+                    <div class="px-3 py-1 rounded bg-cyber-orange/10 border border-cyber-orange/30 text-[10px] font-mono text-cyber-orange">SYSTEM_ENFORCED</div>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 rounded-lg border border-[hsl(210,15%,12%)] bg-[hsl(220,20%,5%)]">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="shield" class="size-4 text-cyber-green"></i>
+                            <div>
+                                <p class="text-sm font-mono text-white">Max Daily Risk</p>
+                                <p class="text-[10px] font-mono text-[hsl(210,8%,40%)]">Limit: 2.0%</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-mono font-bold tabular-nums text-cyber-green">1.4%</span>
+                            <div class="size-2 rounded-full bg-cyber-green"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-lg border border-[hsl(210,15%,12%)] bg-[hsl(220,20%,5%)]">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="crosshair" class="size-4 text-cyber-green"></i>
+                            <div>
+                                <p class="text-sm font-mono text-white">Max Open Exposure</p>
+                                <p class="text-[10px] font-mono text-[hsl(210,8%,40%)]">Limit: 5.0%</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-mono font-bold tabular-nums text-cyber-green">3.2%</span>
+                            <div class="size-2 rounded-full bg-cyber-green"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-lg border border-[hsl(210,15%,12%)] bg-[hsl(220,20%,5%)]">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="trending-down" class="size-4 text-cyber-green"></i>
+                            <div>
+                                <p class="text-sm font-mono text-white">Consecutive Loss Limit</p>
+                                <p class="text-[10px] font-mono text-[hsl(210,8%,40%)]">Limit: 5 trades</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-mono font-bold tabular-nums text-cyber-green">1 trade</span>
+                            <div class="size-2 rounded-full bg-cyber-green"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-lg border border-[hsl(210,15%,12%)] bg-[hsl(220,20%,5%)]">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="lock" class="size-4 text-cyber-green"></i>
+                            <div>
+                                <p class="text-sm font-mono text-white">Emergency Equity Stop</p>
+                                <p class="text-[10px] font-mono text-[hsl(210,8%,40%)]">Limit: 15%</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-mono font-bold tabular-nums text-cyber-green">8.2%</span>
+                            <div class="size-2 rounded-full bg-cyber-green"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-lg border border-[hsl(210,15%,12%)] bg-[hsl(220,20%,5%)]">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="alert-triangle" class="size-4 text-cyber-green"></i>
+                            <div>
+                                <p class="text-sm font-mono text-white">News Blackout</p>
+                                <p class="text-[10px] font-mono text-[hsl(210,8%,40%)]">Limit: 30 min</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-mono font-bold tabular-nums text-cyber-green">Clear</span>
+                            <div class="size-2 rounded-full bg-cyber-green"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-lg border border-[hsl(210,15%,12%)] bg-[hsl(220,20%,5%)]">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="gauge" class="size-4 text-cyber-orange"></i>
+                            <div>
+                                <p class="text-sm font-mono text-white">Volatility Cap</p>
+                                <p class="text-[10px] font-mono text-[hsl(210,8%,40%)]">Limit: 10/10</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-mono font-bold tabular-nums text-cyber-orange">6.8/10</span>
+                            <div class="size-2 rounded-full bg-cyber-orange"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Meters -->
+        <div class="col-span-12 lg:col-span-5 space-y-4">
+            <div class="p-6 rounded-xl bg-card border border-border hud-corners">
+                <h3 class="text-sm font-display font-bold text-white uppercase tracking-wider mb-6">Risk Meters</h3>
+                <div class="space-y-4">
+                    {% for metric in risk_metrics %}
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono text-[hsl(210,8%,55%)]">{{ metric.label }}</span>
+                            <span class="text-xs font-mono font-bold tabular-nums {% if metric.status == 'warning' %}text-cyber-orange{% else %}text-cyber-cyan{% endif %}">
+                                {{ metric.value }}{{ metric.unit }}
+                            </span>
+                        </div>
+                        <div class="relative h-3 rounded-full bg-[hsl(210,15%,10%)] overflow-hidden">
+                            <div
+                                class="h-full rounded-full transition-all duration-700 {% if metric.status == 'warning' %}bg-cyber-orange{% else %}bg-cyber-cyan{% endif %}"
+                                style="width: {{ metric.value|div:metric.max|mul:100 }}%;"
+                            ></div>
+                            <div class="absolute top-0 bottom-0 w-px bg-cyber-orange/50" style="left: 70%"></div>
+                            <div class="absolute top-0 bottom-0 w-px bg-cyber-red/50" style="left: 90%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Suggested Position -->
+            <div class="p-6 rounded-xl bg-card border border-border hud-corners">
+                <h3 class="text-sm font-display font-bold text-white uppercase tracking-wider mb-6">Suggested Position</h3>
+                <div class="space-y-4">
+                    {% for pos in suggested_positions %}
+                    <div class="p-4 rounded-xl bg-white/5 border border-border group hover:border-cyber-cyan/50 transition-all">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-bold text-white">{{ pos.symbol }}</span>
+                                <span class="text-[10px] font-mono text-white/40">Suggested</span>
+                            </div>
+                            <span class="text-xs font-mono {{ pos.color }}">{{ pos.lots|floatformat:2 }} Lots</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="quickOpen('{{ pos.symbol }}', 'BUY', {{ pos.lots }})" class="px-3 py-1.5 rounded bg-cyber-green/10 border border-cyber-green/30 text-[10px] font-mono text-cyber-green hover:bg-cyber-green hover:text-black transition-all">EXECUTE BUY</button>
+                            <button onclick="quickOpen('{{ pos.symbol }}', 'SELL', {{ pos.lots }})" class="px-3 py-1.5 rounded bg-cyber-red/10 border border-cyber-red/30 text-[10px] font-mono text-cyber-red hover:bg-cyber-red hover:text-white transition-all">EXECUTE SELL</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <p class="text-[9px] font-mono text-[hsl(210,8%,35%)] text-center mt-2">
+                        Based on ATR × Kelly fraction × MC drawdown limiter
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function quickOpen(symbol, type, lots) {
+        if (!confirm(`Confirm ${type} order for ${lots} lots of ${symbol}?`)) return;
+        
+        try {
+            // Simulate entry price based on some logic or market data API
+            const price = symbol === 'XAUUSD' ? 2035.00 : 1.0850; 
+            
+            const response = await fetch('/api/trade/open/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    symbol: symbol,
+                    type: type,
+                    lots: lots,
+                    price: price,
+                    sl: price * (type === 'BUY' ? 0.99 : 1.01),
+                    tp: price * (type === 'BUY' ? 1.02 : 0.98)
+                })
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert('Position deployed successfully');
+                window.location.href = '{% url "dashboard:index" %}';
+            }
+        } catch (error) {
+            console.error('Error opening trade:', error);
+            alert('Failed to deploy position');
+        }
+    }
+</script>
+{% endblock %}

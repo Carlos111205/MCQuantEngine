@@ -1,0 +1,97 @@
+{% extends 'dashboard/base.html' %}
+{% load dashboard_extras %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="size-10 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center">
+                <i data-lucide="book-open" class="size-5 text-cyber-cyan"></i>
+            </div>
+            <div>
+                <h1 class="font-display text-lg font-bold text-white tracking-wide">Trade Journal</h1>
+                <p class="text-xs font-mono text-[hsl(210,8%,45%)]">{{ trade_history|length }} trades recorded</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="rounded-lg border border-[hsl(210,15%,14%)] bg-[hsl(220,20%,6%)] p-3">
+            <p class="text-[10px] font-mono text-[hsl(210,8%,45%)] mb-1">Total P&L</p>
+            <p class="text-lg font-display font-bold tabular-nums text-cyber-green">+$2,450.00</p>
+        </div>
+        <div class="rounded-lg border border-[hsl(210,15%,14%)] bg-[hsl(220,20%,6%)] p-3">
+            <p class="text-[10px] font-mono text-[hsl(210,8%,45%)] mb-1">Win Rate</p>
+            <p class="text-lg font-display font-bold text-cyber-cyan tabular-nums">68.2%</p>
+        </div>
+        <div class="rounded-lg border border-[hsl(210,15%,14%)] bg-[hsl(220,20%,6%)] p-3">
+            <p class="text-[10px] font-mono text-[hsl(210,8%,45%)] mb-1">Wins</p>
+            <p class="text-lg font-display font-bold text-cyber-green tabular-nums">17</p>
+        </div>
+        <div class="rounded-lg border border-[hsl(210,15%,14%)] bg-[hsl(220,20%,6%)] p-3">
+            <p class="text-[10px] font-mono text-[hsl(210,8%,45%)] mb-1">Losses</p>
+            <p class="text-lg font-display font-bold text-cyber-red tabular-nums">8</p>
+        </div>
+    </div>
+
+    <!-- Trade Table -->
+    <div class="p-6 rounded-xl bg-card border border-border hud-corners">
+        <h3 class="text-sm font-display font-bold text-white uppercase tracking-wider mb-6">Trade History</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs font-mono">
+                <thead>
+                    <tr class="text-[10px] text-[hsl(210,8%,40%)] uppercase tracking-wider border-b border-[hsl(210,15%,12%)]">
+                        <th class="text-left pb-2 pr-3">Date</th>
+                        <th class="text-left pb-2 pr-3">Symbol</th>
+                        <th class="text-left pb-2 pr-3">Type</th>
+                        <th class="text-left pb-2 pr-3">Pattern</th>
+                        <th class="text-right pb-2 pr-3">Entry</th>
+                        <th class="text-right pb-2 pr-3">Exit</th>
+                        <th class="text-right pb-2 pr-3">P&L</th>
+                        <th class="text-center pb-2 pr-3">Regime</th>
+                        <th class="text-right pb-2">Conf</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border/50">
+                    {% for trade in trade_history %}
+                    <tr class="group hover:bg-white/5 transition-colors">
+                        <td class="py-4 pr-4 text-white/40">#{{ trade.id }}</td>
+                        <td class="py-4 pr-4">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-white">{{ trade.symbol }}</span>
+                                <span class="text-[9px] text-white/20 uppercase tracking-tighter">{{ trade.close_time|date:"Y-m-d H:i" }}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 pr-4">
+                            <span class="px-2 py-0.5 rounded {% if trade.type == 'BUY' %}bg-cyber-green/10 text-cyber-green{% else %}bg-cyber-red/10 text-cyber-red{% endif %}">
+                                {{ trade.type }}
+                            </span>
+                        </td>
+                        <td class="py-4 pr-4">
+                            <div class="flex flex-col">
+                                <span class="text-white/60">IN: {{ trade.open_price|floatformat:5 }}</span>
+                                <span class="text-white/60">OUT: {{ trade.close_price|floatformat:5 }}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 pr-4">
+                            <span class="{% if trade.pnl >= 0 %}text-cyber-green{% else %}text-cyber-red{% endif %} font-bold">
+                                {% if trade.pnl >= 0 %}+{% endif %}${{ trade.pnl|floatformat:2 }}
+                            </span>
+                        </td>
+                        <td class="py-4 pr-4">
+                            <span class="text-white/40 text-[10px]">{{ trade.pattern|default:"Manual" }}</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="py-12 text-center text-white/20 font-mono italic">No historical data found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

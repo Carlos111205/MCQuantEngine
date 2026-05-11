@@ -1,0 +1,499 @@
+{% extends 'dashboard/base.html' %}
+{% load dashboard_extras %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Stats Row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Balance</span>
+                <i data-lucide="wallet" class="size-4 text-cyber-cyan"></i>
+            </div>
+            <div class="flex items-baseline gap-2">
+                <span class="text-2xl font-display font-bold text-white glow-text">${{ account.balance|floatformat:2 }}</span>
+            </div>
+        </div>
+        <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Equity</span>
+                <i data-lucide="activity" class="size-4 text-cyber-cyan"></i>
+            </div>
+            <div class="flex items-baseline gap-2">
+                <span class="text-2xl font-display font-bold text-white glow-text">${{ account.equity|floatformat:2 }}</span>
+            </div>
+        </div>
+        <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Total PnL</span>
+                <i data-lucide="trending-up" class="size-4 text-cyber-green"></i>
+            </div>
+            <div class="flex items-baseline gap-2">
+                <span class="text-2xl font-display font-bold {% if stats.totalPnl >= 0 %}text-cyber-green{% else %}text-cyber-red{% endif %} glow-text">
+                    {% if stats.totalPnl >= 0 %}+{% endif %}${{ stats.totalPnl|floatformat:2 }}
+                </span>
+            </div>
+        </div>
+        <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Win Rate</span>
+                <i data-lucide="target" class="size-4 text-cyber-cyan"></i>
+            </div>
+            <div class="flex items-baseline gap-2">
+                <span class="text-2xl font-display font-bold text-white glow-text">{{ stats.winRate }}%</span>
+            </div>
+        </div>
+        <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Trades</span>
+                <i data-lucide="bar-chart-2" class="size-4 text-cyber-cyan"></i>
+            </div>
+            <div class="flex items-baseline gap-2">
+                <span class="text-2xl font-display font-bold text-white glow-text">{{ stats.totalTrades }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-12 gap-4">
+        <!-- Left Column (Chart & Positions) -->
+        <div class="col-span-12 xl:col-span-9 space-y-4">
+            
+            <!-- Chart & Trade Panel -->
+            <div class="grid grid-cols-12 gap-4">
+                <!-- Main Chart -->
+                <div class="col-span-12 lg:col-span-8 p-4 rounded-xl bg-card border border-border hud-corners relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-4">
+                            <select id="symbolSelector" class="bg-white/5 border border-border rounded px-3 py-1 text-xs font-mono text-white outline-none focus:border-cyber-cyan/50">
+                                <option value="EURUSD">EURUSD</option>
+                                <option value="GBPUSD">GBPUSD</option>
+                                <option value="XAUUSD">XAUUSD</option>
+                                <option value="BTCUSD">BTCUSD</option>
+                            </select>
+                            <div class="flex items-center gap-2">
+                                <span id="livePrice" class="text-lg font-display font-bold text-cyber-cyan glow-text">0.00000</span>
+                                <span id="priceChange" class="text-[10px] font-mono text-cyber-green">+0.00%</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="px-3 py-1 rounded-full bg-cyber-orange/10 border border-cyber-orange/30 flex items-center gap-2">
+                                <i data-lucide="zap" class="size-3 text-cyber-orange"></i>
+                                <span id="next-step-badge" class="text-[9px] font-mono text-cyber-orange uppercase">Analyzing...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tradingview_chart" class="w-full h-[450px]"></div>
+                </div>
+
+                <!-- Quick Trade Panel -->
+                <div class="col-span-12 lg:col-span-4">
+                    <div class="p-4 rounded-xl bg-card border border-border hud-corners h-full">
+                        <h3 class="text-[9px] font-mono text-cyber-cyan/60 uppercase tracking-widest mb-4">Quick Execution</h3>
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[8px] font-mono text-white/40 uppercase block mb-1">Lot Size</label>
+                                    <input type="number" id="lotSize" value="0.10" step="0.01" min="0.01" class="w-full bg-white/5 border border-border rounded px-2 py-1.5 text-xs font-mono text-white outline-none focus:border-cyber-cyan/50">
+                                </div>
+                                <div>
+                                    <label class="text-[8px] font-mono text-white/40 uppercase block mb-1">Leverage</label>
+                                    <select class="w-full bg-white/5 border border-border rounded px-2 py-1.5 text-xs font-mono text-white outline-none">
+                                        <option value="100">1:100</option>
+                                        <option value="500">1:500</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[8px] font-mono text-white/40 uppercase block mb-1">Stop Loss (Pips)</label>
+                                    <input type="number" id="stopLossPips" value="20" step="1" class="w-full bg-white/5 border border-border rounded px-2 py-1.5 text-xs font-mono text-white outline-none focus:border-cyber-red/50">
+                                </div>
+                                <div>
+                                    <label class="text-[8px] font-mono text-white/40 uppercase block mb-1">Take Profit (Pips)</label>
+                                    <input type="number" id="takeProfitPips" value="40" step="1" class="w-full bg-white/5 border border-border rounded px-2 py-1.5 text-xs font-mono text-white outline-none focus:border-cyber-green/50">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 gap-2">
+                                <button onclick="executeQuickTrade('BUY')" class="flex items-center justify-between px-4 py-3 rounded-lg bg-cyber-green/10 border border-cyber-green/30 hover:bg-cyber-green hover:text-black transition-all group">
+                                    <span class="text-[10px] font-display font-black group-hover:text-black">BUY</span>
+                                    <span id="buyPrice" class="text-xs font-mono">0.0000</span>
+                                </button>
+                                <button onclick="executeQuickTrade('SELL')" class="flex items-center justify-between px-4 py-3 rounded-lg bg-cyber-red/10 border border-cyber-red/30 hover:bg-cyber-red hover:text-white transition-all group">
+                                    <span class="text-[10px] font-display font-black group-hover:text-white">SELL</span>
+                                    <span id="sellPrice" class="text-xs font-mono">0.0000</span>
+                                </button>
+                            </div>
+                            <div class="pt-3 border-t border-border/50">
+                                <div class="flex justify-between text-[9px] font-mono mb-1">
+                                    <span class="text-white/40">Margin:</span>
+                                    <span id="marginLabel" class="text-white">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Open Positions -->
+            <div class="p-6 rounded-xl bg-card border border-border hud-corners">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-sm font-display font-bold text-white uppercase tracking-wider">Active Deployments</h3>
+                        <p class="text-[10px] font-mono text-cyber-cyan/60 uppercase">Real-time position monitoring</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="closeAllTrades()" class="px-4 py-1.5 rounded-lg bg-cyber-red/10 border border-cyber-red/50 text-[10px] font-mono text-cyber-red hover:bg-cyber-red hover:text-white transition-all flex items-center gap-2">
+                            <i data-lucide="x-circle" class="size-3"></i>
+                            CLOSE ALL POSITIONS
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left font-mono text-[11px]">
+                        <thead>
+                            <tr class="border-b border-border text-cyber-cyan/60 uppercase">
+                                <th class="pb-3 pr-4">ID</th>
+                                <th class="pb-3 pr-4">Asset</th>
+                                <th class="pb-3 pr-4">Type</th>
+                                <th class="pb-3 pr-4">Open Price</th>
+                                <th class="pb-3 pr-4">PnL</th>
+                                <th class="pb-3 pr-4">Confidence</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border/50">
+                            {% for trade in open_trades %}
+                            <tr class="group hover:bg-white/5 transition-colors" id="trade-{{ trade.id }}">
+                                <td class="py-4 pr-4 text-white/40">#{{ trade.id }}</td>
+                                <td class="py-4 pr-4">
+                                    <span class="font-bold text-white">{{ trade.symbol }}</span>
+                                </td>
+                                <td class="py-4 pr-4">
+                                    <span class="px-2 py-0.5 rounded {% if trade.type == 'BUY' %}bg-cyber-green/10 text-cyber-green{% else %}bg-cyber-red/10 text-cyber-red{% endif %}">
+                                        {{ trade.type }}
+                                    </span>
+                                </td>
+                                <td class="py-4 pr-4 text-white/60">{{ trade.open_price|floatformat:5 }}</td>
+                                <td class="py-4 pr-4">
+                                    <span class="{% if trade.pnl >= 0 %}text-cyber-green{% else %}text-cyber-red{% endif %}">
+                                        {% if trade.pnl >= 0 %}+{% endif %}${{ trade.pnl|floatformat:2 }}
+                                    </span>
+                                </td>
+                                <td class="py-4 pr-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex-1 min-w-[60px] h-1 bg-white/5 rounded-full overflow-hidden">
+                                            <div class="h-full bg-cyber-cyan shadow-[0_0_8px_rgba(0,230,255,0.5)]" style="width: {{ trade.confidence|mul:100 }}%"></div>
+                                        </div>
+                                        <button onclick="closeTrade({{ trade.id }})" class="p-1 rounded bg-cyber-red/10 border border-cyber-red/30 text-cyber-red hover:bg-cyber-red hover:text-white transition-all">
+                                            <i data-lucide="x" class="size-3"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="py-12 text-center text-white/20 font-mono italic">No active deployments detected</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-span-12 xl:col-span-4 space-y-4">
+            <!-- Regime Indicator -->
+            <div class="p-6 rounded-xl bg-card border border-border hud-corners">
+                <h3 class="text-xs font-display font-bold text-white uppercase tracking-wider mb-4">Market Regime</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-mono text-cyber-cyan/60">CURRENT</span>
+                        <span class="px-2 py-0.5 rounded bg-cyber-cyan/10 text-cyber-cyan text-[10px] font-mono border border-cyber-cyan/30">{{ regime.regime }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-mono text-cyber-cyan/60">PROBABILITY</span>
+                        <span class="text-xs font-mono text-white">{{ regime.probability|mul:100|floatformat:1 }}%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-mono text-cyber-cyan/60">VOLATILITY</span>
+                        <span class="text-xs font-mono text-cyber-orange">{{ regime.volatility }}</span>
+                    </div>
+                    <div class="pt-4 border-t border-border">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-[10px] font-mono text-cyber-cyan/60 uppercase">Trend Strength (ADX)</span>
+                            <span class="text-[10px] font-mono text-cyber-cyan">{{ regime.adx }}</span>
+                        </div>
+                        <div class="h-1 bg-white/5 rounded-full overflow-hidden">
+                            <div class="h-full bg-cyber-cyan shadow-[0_0_8px_rgba(0,230,255,0.5)]" style="width: {{ regime.adx }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Gauges -->
+            <div class="p-6 rounded-xl bg-card border border-border hud-corners">
+                <h3 class="text-xs font-display font-bold text-white uppercase tracking-wider mb-4">Risk Exposure</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    {% for metric in risk_metrics %}
+                    {% if forloop.counter <= 2 %}
+                    <div class="text-center">
+                        <div class="relative size-20 mx-auto mb-2">
+                            <svg class="size-full transform -rotate-90">
+                                <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="4" fill="transparent" class="text-white/5"></circle>
+                                <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="4" fill="transparent" class="{% if metric.status == 'warning' %}text-cyber-orange{% else %}text-cyber-cyan{% endif %}" stroke-dasharray="226.2" stroke-dashoffset="{{ 226.2|sub:metric.value|div:metric.max|mul:226.2 }}"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-sm font-bold text-white">{{ metric.value }}{{ metric.unit }}</span>
+                            </div>
+                        </div>
+                        <span class="text-[9px] font-mono text-cyber-cyan/60 uppercase">{{ metric.label }}</span>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Pattern Scores -->
+            <div class="p-6 rounded-xl bg-card border border-border hud-corners">
+                <h3 class="text-xs font-display font-bold text-white uppercase tracking-wider mb-4">Neural Pattern Recognition</h3>
+                <div class="space-y-3">
+                    {% for pattern in patterns %}
+                    <div class="flex items-center justify-between p-2 rounded bg-white/5 border border-white/5">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-mono text-white">{{ pattern.name }}</span>
+                            <span class="text-[9px] font-mono text-cyber-cyan/40">{{ pattern.lastSeen }}</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-mono font-bold text-cyber-cyan">{{ pattern.score|mul:100|floatformat:0 }}</span>
+                            <div class="w-12 h-1 bg-white/5 rounded-full overflow-hidden">
+                                <div class="h-full bg-cyber-cyan shadow-[0_0_8px_rgba(0,230,255,0.5)]" style="width: {{ pattern.score|mul:100 }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+<script>
+    let tvWidget;
+
+    function initTradingView(symbol) {
+        // Map our internal symbols to TradingView symbols
+        const symbolMap = {
+            'EURUSD': 'FX:EURUSD',
+            'GBPUSD': 'FX:GBPUSD',
+            'XAUUSD': 'OANDA:XAUUSD',
+            'BTCUSD': 'BINANCE:BTCUSDT',
+            'NAS100': 'CAPITALCOM:US100'
+        };
+
+        tvWidget = new TradingView.widget({
+            "autosize": true,
+            "symbol": symbolMap[symbol] || "FX:EURUSD",
+            "interval": "1",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#f1f3f6",
+            "enable_publishing": false,
+            "hide_side_toolbar": false,
+            "allow_symbol_change": true,
+            "container_id": "tradingview_chart",
+            "studies": [
+                "MASimple@tv-basicstudies",
+                "RSI@tv-basicstudies"
+            ],
+            "colors": {
+                "active_bg": "rgba(0, 230, 255, 0.1)",
+            }
+        });
+    }
+
+    // Initialize with default symbol
+    initTradingView('EURUSD');
+
+    // Update on symbol change
+    document.getElementById('symbolSelector').addEventListener('change', (e) => {
+        initTradingView(e.target.value);
+    });
+
+    // Close All Trades Function
+    async function closeAllTrades() {
+        if (!confirm('CRITICAL: Are you sure you want to close ALL active deployments?')) return;
+        
+        try {
+            const response = await fetch('/api/trade/close-all/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                showNotification('System Purge', `Successfully closed ${result.count} positions.`, 'warning');
+                setTimeout(() => location.reload(), 1500);
+            }
+        } catch (error) {
+            console.error('Error closing all trades:', error);
+            showNotification('Purge Failed', 'Could not close all positions.', 'error');
+        }
+    }
+
+    // Close Trade Function
+    async function closeTrade(tradeId) {
+        if (!confirm('Are you sure you want to close this position?')) return;
+        
+        try {
+            const response = await fetch(`/api/trade/close/${tradeId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                const row = document.getElementById(`trade-${tradeId}`);
+                row.classList.add('opacity-0', 'translate-x-10');
+                setTimeout(() => {
+                    row.remove();
+                    location.reload(); 
+                }, 300);
+            }
+        } catch (error) {
+            console.error('Error closing trade:', error);
+            alert('Failed to close trade');
+        }
+    }
+
+    // Quick Trade Function
+    async function executeQuickTrade(type) {
+        const symbol = document.getElementById('symbolSelector').value;
+        const lots = parseFloat(document.getElementById('lotSize').value);
+        const price = parseFloat(document.getElementById('livePrice').innerText);
+        const slPips = parseFloat(document.getElementById('stopLossPips').value);
+        const tpPips = parseFloat(document.getElementById('takeProfitPips').value);
+        
+        // Calculate SL/TP prices
+        const pipValue = 0.0001;
+        const slPrice = type === 'BUY' ? price - (slPips * pipValue) : price + (slPips * pipValue);
+        const tpPrice = type === 'BUY' ? price + (tpPips * pipValue) : price - (tpPips * pipValue);
+
+        if (!confirm(`Confirm ${type} order for ${lots} lots of ${symbol}?\nSL: ${slPrice.toFixed(5)}\nTP: ${tpPrice.toFixed(5)}`)) return;
+        
+        try {
+            const response = await fetch('/api/trade/open/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    symbol: symbol,
+                    type: type,
+                    lots: lots,
+                    price: price,
+                    sl: slPrice,
+                    tp: tpPrice
+                })
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                location.reload();
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            console.error('Error opening trade:', error);
+            alert('Failed to execute trade');
+        }
+    }
+
+    // Market Data Polling
+    let isFirstLoad = true;
+    let lastTradeCount = {{ open_trades|length }};
+
+    async function updateMarketData() {
+        const symbol = document.getElementById('symbolSelector').value;
+        try {
+            const response = await fetch('/api/market-data/');
+            const result = await response.json();
+            if (result.status === 'success') {
+                // Risk Guardian Detection
+                 if (result.open_trade_count !== lastTradeCount) {
+                     const diff = lastTradeCount - result.open_trade_count;
+                     if (diff > 0) {
+                        showNotification('Risk Guardian', `${diff} position(s) auto-closed at SL/TP targets.`, 'success');
+                     }
+                     lastTradeCount = result.open_trade_count;
+                     setTimeout(() => location.reload(), 2000); // Give time to read notification
+                     return;
+                 }
+
+                const currentData = result.data.find(d => d.symbol === symbol);
+                if (currentData) {
+                    const oldPrice = parseFloat(document.getElementById('livePrice').innerText);
+                    const newPrice = currentData.price;
+                    
+                    // Logic based notifications
+                    if (oldPrice > 0 && Math.abs(newPrice - oldPrice) / oldPrice > 0.0005) {
+                        showNotification('Volatility Alert', `Rapid movement detected in ${symbol}. Monitor risk exposure.`, 'warning');
+                    }
+
+                    // Update Next Step Advice
+                    const badge = document.getElementById('next-step-badge');
+                    if (newPrice > oldPrice) {
+                        badge.innerText = 'BULLISH BIAS: CONSIDER BUY';
+                        badge.parentElement.className = 'px-3 py-1 rounded-full bg-cyber-green/10 border border-cyber-green/30 flex items-center gap-2';
+                    } else if (newPrice < oldPrice) {
+                        badge.innerText = 'BEARISH BIAS: CONSIDER SELL';
+                        badge.parentElement.className = 'px-3 py-1 rounded-full bg-cyber-red/10 border border-cyber-red/30 flex items-center gap-2';
+                    }
+
+                    document.getElementById('livePrice').innerText = newPrice.toFixed(5);
+                    document.getElementById('buyPrice').innerText = currentData.price.toFixed(5);
+                    document.getElementById('sellPrice').innerText = (currentData.price - 0.0001).toFixed(5);
+                    
+                    const changeEl = document.getElementById('priceChange');
+                    changeEl.innerText = (currentData.change >= 0 ? '+' : '') + currentData.change.toFixed(2) + '%';
+                    changeEl.className = currentData.change >= 0 ? 'text-[10px] font-mono text-cyber-green' : 'text-[10px] font-mono text-cyber-red';
+                    
+                    if (currentData.candles) {
+                        // TradingView widget handles its own data
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching market data:', error);
+        }
+    }
+
+    // Reset first load on symbol change
+    document.getElementById('symbolSelector').addEventListener('change', () => {
+        isFirstLoad = true;
+        updateMarketData();
+    });
+
+    // Lot Size / Margin Calculator
+    document.getElementById('lotSize').addEventListener('input', (e) => {
+        const lots = parseFloat(e.target.value);
+        const price = parseFloat(document.getElementById('livePrice').innerText);
+        const margin = (price * 10000 * lots) / 100;
+        document.getElementById('marginLabel').innerText = `$${margin.toFixed(2)}`;
+    });
+
+    setInterval(updateMarketData, 1000);
+    updateMarketData();
+
+    // No need for ResizeObserver with TradingView widget autosize
+</script>
+{% endblock %}

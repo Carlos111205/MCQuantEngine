@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MC5 QUANT ENGINE | Professional Trading Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cyber-cyan': '#00E6FF',
+                        'cyber-pink': '#FF00C8',
+                        'cyber-green': '#00E682',
+                        'cyber-red': '#E6233C',
+                        'cyber-orange': '#FF9600',
+                        'cyber-purple': '#9632FF',
+                        'background': 'hsl(220, 25%, 4%)',
+                        'foreground': 'hsl(0, 0%, 95%)',
+                        'card': 'hsl(220, 20%, 7%)',
+                        'border': 'hsl(210, 15%, 18%)',
+                    },
+                    fontFamily: {
+                        display: ['Orbitron', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: hsl(220, 25%, 4%);
+            color: hsl(0, 0%, 95%);
+            font-family: 'JetBrains Mono', monospace;
+            overflow-x: hidden;
+        }
+        .grid-bg {
+            background-image: 
+                linear-gradient(to right, rgba(0, 230, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 230, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        .glow-border {
+            border: 1px solid rgba(0, 230, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 230, 255, 0.1), inset 0 0 15px rgba(0, 230, 255, 0.05);
+        }
+        .glow-text {
+            text-shadow: 0 0 10px rgba(0, 230, 255, 0.6), 0 0 20px rgba(0, 230, 255, 0.3);
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .scanline::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 230, 255, 0.01) 2px,
+                rgba(0, 230, 255, 0.01) 4px
+            );
+            pointer-events: none;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="grid-bg scanline">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-40 border-b border-border bg-background/80 backdrop-blur-lg">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="relative size-10 rounded-lg bg-cyber-cyan/10 flex items-center justify-center glow-border">
+                    <i data-lucide="atom" class="size-6 text-cyber-cyan"></i>
+                </div>
+                <div>
+                    <h1 class="font-display text-lg font-bold text-white tracking-wider">MC5</h1>
+                    <p class="text-[10px] text-cyber-cyan/60 font-mono tracking-[0.2em]">QUANT ENGINE</p>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm font-mono text-white/60">
+                <a href="#features" class="hover:text-cyber-cyan transition-colors">FEATURES</a>
+                <a href="#simulations" class="hover:text-cyber-cyan transition-colors">SIMULATIONS</a>
+                <a href="#risk" class="hover:text-cyber-cyan transition-colors">RISK CONTROL</a>
+            </div>
+            <a href="{% url 'dashboard:index' %}" class="px-6 py-2 bg-cyber-cyan/10 border border-cyber-cyan/50 rounded-lg text-cyber-cyan text-sm font-display font-bold hover:bg-cyber-cyan hover:text-black transition-all duration-300 glow-border">
+                ENTER PLATFORM
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-40 pb-20 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col items-center text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyber-cyan/10 border border-cyber-cyan/30 text-[10px] text-cyber-cyan font-mono mb-8">
+                <span class="size-1.5 rounded-full bg-cyber-cyan animate-pulse"></span>
+                v1.0.0 DEPLOYED ON TOKYO-AWS-01
+            </div>
+            <h1 class="font-display text-5xl md:text-7xl font-black text-white mb-6 tracking-tight">
+                Welcome to <span class="text-cyber-cyan glow-text">MCQuantEngine</span>
+            </h1>
+            <p class="max-w-2xl text-lg text-white/60 font-mono mb-12">
+                The next generation of Monte Carlo simulation and quantitative risk analysis. 
+                Built for professional traders who demand precision in an uncertain market.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="{% url 'dashboard:index' %}" class="px-10 py-4 bg-cyber-cyan text-black font-display font-black text-lg rounded-xl hover:scale-105 transition-transform">
+                    LAUNCH TERMINAL
+                </a>
+                <button onclick="togglePresentation()" class="px-10 py-4 bg-white/5 border border-border text-white font-display font-bold text-lg rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-3">
+                    <i data-lucide="presentation" class="size-5"></i>
+                    HOW IT WORKS
+                </button>
+            </div>
+        </div>
+
+        <!-- Floating Elements -->
+        <div class="absolute top-1/2 left-10 -translate-y-1/2 opacity-20 hidden lg:block animate-float" style="animation-delay: -2s;">
+            <div class="p-4 rounded-xl border border-cyber-cyan bg-cyber-cyan/5 backdrop-blur-md">
+                <div class="flex items-center gap-3 mb-2">
+                    <i data-lucide="trending-up" class="size-4 text-cyber-cyan"></i>
+                    <span class="text-xs font-mono">SHARPE RATIO</span>
+                </div>
+                <div class="text-2xl font-display font-bold">2.84</div>
+            </div>
+        </div>
+        <div class="absolute top-1/3 right-10 -translate-y-1/2 opacity-20 hidden lg:block animate-float">
+            <div class="p-4 rounded-xl border border-cyber-pink bg-cyber-pink/5 backdrop-blur-md">
+                <div class="flex items-center gap-3 mb-2">
+                    <i data-lucide="shield" class="size-4 text-cyber-pink"></i>
+                    <span class="text-xs font-mono">MAX DRAWDOWN</span>
+                </div>
+                <div class="text-2xl font-display font-bold">12.4%</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="py-20 px-6 border-t border-border">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="p-8 rounded-2xl bg-white/5 border border-border hover:border-cyber-cyan/50 transition-all group">
+                    <div class="size-12 rounded-xl bg-cyber-cyan/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="zap" class="size-6 text-cyber-cyan"></i>
+                    </div>
+                    <h3 class="font-display text-xl font-bold mb-4">Ultra-Fast Simulation</h3>
+                    <p class="text-white/50 font-mono text-sm leading-relaxed">
+                        Run 100,000+ trade paths in milliseconds. Our optimized engine provides instant feedback on your strategy's edge.
+                    </p>
+                </div>
+                <div class="p-8 rounded-2xl bg-white/5 border border-border hover:border-cyber-pink/50 transition-all group">
+                    <div class="size-12 rounded-xl bg-cyber-pink/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="bar-chart-3" class="size-6 text-cyber-pink"></i>
+                    </div>
+                    <h3 class="font-display text-xl font-bold mb-4">Risk Distribution</h3>
+                    <p class="text-white/50 font-mono text-sm leading-relaxed">
+                        Visualize probability density of returns and drawdowns. Understand your ruin risk before deploying capital.
+                    </p>
+                </div>
+                <div class="p-8 rounded-2xl bg-white/5 border border-border hover:border-cyber-green/50 transition-all group">
+                    <div class="size-12 rounded-xl bg-cyber-green/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="layout" class="size-6 text-cyber-green"></i>
+                    </div>
+                    <h3 class="font-display text-xl font-bold mb-4">Trade Journaling</h3>
+                    <p class="text-white/50 font-mono text-sm leading-relaxed">
+                        Integrated trade journal with advanced analytics. Track your performance and identify psychological biases.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Study Pack Modal -->
+    <div id="presentationModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-background/98 backdrop-blur-2xl"></div>
+        <div class="relative h-full max-w-5xl mx-auto px-6 py-8 flex flex-col">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between mb-8 border-b border-border/50 pb-6">
+                <div class="flex items-center gap-4">
+                    <div class="size-12 rounded-xl bg-cyber-cyan/10 flex items-center justify-center border border-cyber-cyan/50 shadow-[0_0_15px_rgba(0,230,255,0.2)]">
+                        <i data-lucide="graduation-cap" class="text-cyber-cyan"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-display text-2xl font-bold text-white tracking-tight">MCQuantEngine <span class="text-cyber-cyan">Study Pack</span></h2>
+                        <p class="text-[10px] font-mono text-white/40 uppercase tracking-[0.2em]">Comprehensive System Education v1.0</p>
+                    </div>
+                </div>
+                <button onclick="togglePresentation()" class="size-10 rounded-lg bg-white/5 border border-border flex items-center justify-center text-white hover:bg-cyber-red/20 hover:text-cyber-red hover:border-cyber-red/50 transition-all">
+                    <i data-lucide="x" class="size-5"></i>
+                </button>
+            </div>
+
+            <!-- Page Container -->
+            <div class="flex-1 overflow-hidden relative">
+                
+                <!-- Page 1: Theoretical Foundations -->
+                <div id="study-page-1" class="study-page h-full flex flex-col">
+                    <div class="grid md:grid-cols-2 gap-12 items-center flex-1">
+                        <div class="space-y-6">
+                            <span class="px-3 py-1 rounded-full bg-cyber-cyan/10 border border-cyber-cyan/30 text-[10px] font-mono text-cyber-cyan uppercase">Module 01 // Mathematical Core</span>
+                            <h3 class="font-display text-4xl font-black text-white leading-tight">Theoretical <br/><span class="text-cyber-cyan">Foundations</span></h3>
+                            <p class="text-white/60 font-mono leading-relaxed">
+                                MCQuantEngine is built on the principles of <span class="text-white">Computational Modelling</span>. Instead of predicting the future, we model it as a set of probabilistic outcomes.
+                            </p>
+                            <div class="space-y-4">
+                                <div class="p-4 rounded-xl bg-white/5 border border-border group hover:border-cyber-cyan/50 transition-all">
+                                    <h4 class="text-cyber-cyan font-display font-bold text-sm mb-1">Active MT5 Engine</h4>
+                                    <p class="text-[11px] font-mono text-white/40">High-fidelity 1-minute candlestick visualization with real-time tick updates and Brownian Motion price dynamics.</p>
+                                </div>
+                                <div class="p-4 rounded-xl bg-white/5 border border-border group hover:border-cyber-pink/50 transition-all">
+                                    <h4 class="text-cyber-pink font-display font-bold text-sm mb-1">Demo Broker System</h4>
+                                    <p class="text-[11px] font-mono text-white/40">Simulated brokerage environment with persistent balance, live equity tracking, and 1:100 leverage margin logic.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <div class="aspect-square rounded-3xl bg-cyber-cyan/5 border border-cyber-cyan/10 flex items-center justify-center overflow-hidden">
+                                <div class="absolute inset-0 grid-bg opacity-20"></div>
+                                <i data-lucide="brain-circuit" class="size-40 text-cyber-cyan/20 animate-pulse"></i>
+                                <div class="absolute bottom-8 left-8 right-8 p-4 rounded-xl bg-background/80 border border-border backdrop-blur-md">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-[10px] font-mono text-cyber-cyan">COMPUTING PATHS...</span>
+                                        <span class="text-[10px] font-mono text-white/40">98% ACCURACY</span>
+                                    </div>
+                                    <div class="h-1 bg-white/10 rounded-full overflow-hidden">
+                                        <div class="h-full bg-cyber-cyan w-[98%] shadow-[0_0_10px_#00E6FF]"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 2: System Architecture -->
+                <div id="study-page-2" class="study-page h-full hidden flex flex-col">
+                    <div class="flex-1 space-y-12">
+                        <div class="text-center space-y-4">
+                            <span class="px-3 py-1 rounded-full bg-cyber-pink/10 border border-cyber-pink/30 text-[10px] font-mono text-cyber-pink uppercase">Module 02 // System Architecture</span>
+                            <h3 class="font-display text-4xl font-black text-white">Platform <span class="text-cyber-pink">Ecosystem</span></h3>
+                        </div>
+                        <div class="grid md:grid-cols-3 gap-6">
+                                <div class="p-8 rounded-2xl bg-white/5 border border-border hover:bg-cyber-cyan/5 transition-all group">
+                                <i data-lucide="shield-check" class="size-8 text-cyber-cyan mb-6 group-hover:scale-110 transition-transform"></i>
+                                <h4 class="font-display font-bold text-white mb-4 uppercase tracking-widest">Risk Guardian</h4>
+                                <p class="text-xs font-mono text-white/40 leading-relaxed">Integrated Automated Risk Management. The system monitors every open deployment and automatically closes them if your custom Stop Loss or Take Profit targets are detected.</p>
+                            </div>
+                            <div class="p-8 rounded-2xl bg-white/5 border border-border hover:bg-cyber-pink/5 transition-all group">
+                                <i data-lucide="layout-template" class="size-8 text-cyber-pink mb-6 group-hover:scale-110 transition-transform"></i>
+                                <h4 class="font-display font-bold text-white mb-4 uppercase tracking-widest">TradingView Integration</h4>
+                                <p class="text-xs font-mono text-white/40 leading-relaxed">Real-time institutional-grade charting with TradingView. Analyze price action with professional indicators and drawing tools directly within the terminal.</p>
+                            </div>
+                            <div class="p-8 rounded-2xl bg-white/5 border border-border hover:bg-cyber-green/5 transition-all group">
+                                <i data-lucide="database" class="size-8 text-cyber-green mb-6 group-hover:scale-110 transition-transform"></i>
+                                <h4 class="font-display font-bold text-white mb-4 uppercase tracking-widest">Neural Journal</h4>
+                                <p class="text-xs font-mono text-white/40 leading-relaxed">Persistent demo brokerage system. Tracks live Balance and Equity updates, ensuring your mathematical growth is recorded with zero manual input.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 3: Operational Guide -->
+                <div id="study-page-3" class="study-page h-full hidden flex flex-col">
+                    <div class="flex-1 flex flex-col justify-center max-w-3xl mx-auto space-y-12 w-full">
+                        <div class="text-center space-y-4">
+                            <span class="px-3 py-1 rounded-full bg-cyber-green/10 border border-cyber-green/30 text-[10px] font-mono text-cyber-green uppercase">Module 03 // Operational Protocol</span>
+                            <h3 class="font-display text-4xl font-black text-white">How to <span class="text-cyber-green">Operate</span></h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-6 p-6 rounded-2xl bg-white/5 border border-border">
+                                <div class="size-12 rounded-xl bg-cyber-green/20 flex items-center justify-center font-display font-black text-cyber-green">01</div>
+                                <div class="flex-1">
+                                    <h4 class="text-white font-bold mb-1 uppercase tracking-wider text-sm">Analyze Active Feed</h4>
+                                    <p class="text-[11px] font-mono text-white/40 italic">Enter Terminal → Select Asset → Watch Active Candlesticks → Monitor Price Ticks</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-6 p-6 rounded-2xl bg-white/5 border border-border">
+                                <div class="size-12 rounded-xl bg-cyber-cyan/20 flex items-center justify-center font-display font-black text-cyber-cyan">02</div>
+                                <div class="flex-1">
+                                    <h4 class="text-white font-bold mb-1 uppercase tracking-wider text-sm">Stress Test Strategy</h4>
+                                    <p class="text-[11px] font-mono text-white/40 italic">Simulator → Input Edge → Run Monte Carlo → Check Ruin Risk</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-6 p-6 rounded-2xl bg-white/5 border border-border">
+                                <div class="size-12 rounded-xl bg-cyber-pink/20 flex items-center justify-center font-display font-black text-cyber-pink">03</div>
+                                <div class="flex-1">
+                                    <h4 class="text-white font-bold mb-1 uppercase tracking-wider text-sm">Automated Protection</h4>
+                                    <p class="text-[11px] font-mono text-white/40 italic">Deploy positions with custom SL/TP. The 'Risk Guardian' auto-closes trades if targets are hit or market conditions shift.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 4: Risk & Assets -->
+                <div id="study-page-4" class="study-page h-full hidden flex flex-col">
+                    <div class="flex-1 grid md:grid-cols-2 gap-12 items-center">
+                        <div class="space-y-8">
+                            <div class="space-y-4">
+                                <span class="px-3 py-1 rounded-full bg-cyber-orange/10 border border-cyber-orange/30 text-[10px] font-mono text-cyber-orange uppercase">Module 04 // Risk & Exposure</span>
+                                <h3 class="font-display text-4xl font-black text-white">Market <span class="text-cyber-orange">Coverage</span></h3>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="p-4 rounded-xl bg-white/5 border border-border">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="size-2 rounded-full bg-cyber-cyan"></div>
+                                        <span class="text-[10px] font-mono text-white/60">FOREX</span>
+                                    </div>
+                                    <div class="text-sm font-bold text-white uppercase tracking-tighter">EURUSD // GBPUSD</div>
+                                </div>
+                                <div class="p-4 rounded-xl bg-white/5 border border-border">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="size-2 rounded-full bg-cyber-pink"></div>
+                                        <span class="text-[10px] font-mono text-white/60">COMMODITIES</span>
+                                    </div>
+                                    <div class="text-sm font-bold text-white uppercase tracking-tighter">XAUUSD // GOLD</div>
+                                </div>
+                                <div class="p-4 rounded-xl bg-white/5 border border-border">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="size-2 rounded-full bg-cyber-green"></div>
+                                        <span class="text-[10px] font-mono text-white/60">INDICES</span>
+                                    </div>
+                                    <div class="text-sm font-bold text-white uppercase tracking-tighter">NAS100 // NASDAQ</div>
+                                </div>
+                                <div class="p-4 rounded-xl bg-white/5 border border-border">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="size-2 rounded-full bg-cyber-orange"></div>
+                                        <span class="text-[10px] font-mono text-white/60">CRYPTO</span>
+                                    </div>
+                                    <div class="text-sm font-bold text-white uppercase tracking-tighter">BTCUSD // BITCOIN</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-8 rounded-3xl bg-cyber-red/5 border border-cyber-red/20 space-y-6">
+                            <div class="flex items-center gap-3 text-cyber-red">
+                                <i data-lucide="alert-octagon" class="size-6"></i>
+                                <h4 class="font-display font-bold uppercase tracking-widest">Risk Warning</h4>
+                            </div>
+                            <p class="text-xs font-mono text-white/60 leading-relaxed">
+                                Computation modeling provides statistical probability, not certainty. Market regimes can shift instantly (Black Swan events). Always maintain a <span class="text-white">Ruin Probability</span> of 0% in your simulations.
+                            </p>
+                            <div class="p-4 rounded-xl bg-black/40 border border-cyber-red/30">
+                                <div class="flex justify-between text-[10px] font-mono text-cyber-red mb-2 uppercase">
+                                    <span>System Safety Status</span>
+                                    <span>NOMINAL</span>
+                                </div>
+                                <div class="h-1 bg-cyber-red/10 rounded-full overflow-hidden">
+                                    <div class="h-full bg-cyber-red w-full opacity-50 shadow-[0_0_10px_#E6233C]"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Study Pack Download Section -->
+                    <div class="mt-12 p-8 rounded-2xl bg-cyber-cyan/5 border border-cyber-cyan/20">
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div>
+                                <h4 class="font-display text-xl font-bold text-white mb-2 uppercase tracking-tight">Download Study Materials</h4>
+                                <p class="text-xs font-mono text-white/40 leading-relaxed max-w-md">
+                                    Gain offline access to the complete system documentation and theoretical framework.
+                                </p>
+                                <div class="mt-4 space-y-1">
+                                    <p class="text-[9px] font-mono text-cyber-cyan/60 uppercase">Developed by:</p>
+                                    <div class="grid grid-cols-2 gap-x-8 gap-y-1">
+                                        <p class="text-[9px] font-mono text-white/40">1. Carlos Chirenda N02421747B</p>
+                                        <p class="text-[9px] font-mono text-white/40">2. Ashley Mutizwa N02420496T</p>
+                                        <p class="text-[9px] font-mono text-white/40">3. Mary Chidziwa N02418836E</p>
+                                        <p class="text-[9px] font-mono text-white/40">4. Bernard Gudyanga N02421383H</p>
+                                        <p class="text-[9px] font-mono text-white/40">5. Trevor Ndonga N02422382F</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <a href="{% url 'dashboard:download_study_material' 'pdf' %}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-border hover:border-cyber-cyan hover:bg-cyber-cyan/10 transition-all group">
+                                    <i data-lucide="file-text" class="size-8 text-cyber-cyan"></i>
+                                    <span class="text-[10px] font-display font-bold text-white uppercase">Download PDF</span>
+                                </a>
+                                <a href="{% url 'dashboard:download_study_material' 'ppt' %}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-border hover:border-cyber-orange hover:bg-cyber-orange/10 transition-all group">
+                                    <i data-lucide="presentation" class="size-8 text-cyber-orange"></i>
+                                    <span class="text-[10px] font-display font-bold text-white uppercase">Download PPT</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer Navigation -->
+            <div class="mt-8 pt-6 border-t border-border/50 flex items-center justify-between">
+                <div class="flex gap-2">
+                    <div id="page-indicator-1" class="size-2 rounded-full bg-cyber-cyan shadow-[0_0_8px_rgba(0,230,255,0.5)] transition-all"></div>
+                    <div id="page-indicator-2" class="size-2 rounded-full bg-white/10 transition-all"></div>
+                    <div id="page-indicator-3" class="size-2 rounded-full bg-white/10 transition-all"></div>
+                    <div id="page-indicator-4" class="size-2 rounded-full bg-white/10 transition-all"></div>
+                </div>
+                <div class="flex gap-4">
+                    <button id="prevBtn" onclick="changeStudyPage(-1)" class="px-6 py-2 rounded-lg bg-white/5 border border-border text-xs font-display font-bold text-white/40 hover:text-white hover:border-white/30 transition-all disabled:opacity-0" disabled>
+                        PREVIOUS
+                    </button>
+                    <button id="nextBtn" onclick="changeStudyPage(1)" class="px-8 py-2 rounded-lg bg-cyber-cyan text-black font-display font-black text-xs hover:scale-105 transition-transform">
+                        NEXT MODULE
+                    </button>
+                    <button id="finishBtn" onclick="togglePresentation()" class="hidden px-8 py-2 rounded-lg bg-cyber-green text-black font-display font-black text-xs hover:scale-105 transition-transform">
+                        FINISH STUDY
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-10 border-t border-border">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-3">
+                <div class="size-8 rounded-lg bg-white/5 flex items-center justify-center border border-border">
+                    <i data-lucide="atom" class="size-4 text-white/40"></i>
+                </div>
+                <span class="text-xs font-mono text-white/40 tracking-widest">MC5 QUANT ENGINE // EST. 2026</span>
+            </div>
+            <div class="flex items-center gap-8 text-[10px] font-mono text-white/20">
+                <span>ENCRYPTED_AES_256</span>
+                <span>TOKYO_REGION_01</span>
+                <span>LATENCY: 14MS</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        let currentStudyPage = 1;
+        const totalStudyPages = 4;
+
+        function togglePresentation() {
+            const modal = document.getElementById('presentationModal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                currentStudyPage = 1;
+                updateStudyPageUI();
+            } else {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function changeStudyPage(direction) {
+            currentStudyPage += direction;
+            if (currentStudyPage < 1) currentStudyPage = 1;
+            if (currentStudyPage > totalStudyPages) currentStudyPage = totalStudyPages;
+            updateStudyPageUI();
+        }
+
+        function updateStudyPageUI() {
+            // Hide all pages
+            document.querySelectorAll('.study-page').forEach(p => p.classList.add('hidden'));
+            // Show current page
+            document.getElementById(`study-page-${currentStudyPage}`).classList.remove('hidden');
+
+            // Update indicators
+            for (let i = 1; i <= totalStudyPages; i++) {
+                const indicator = document.getElementById(`page-indicator-${i}`);
+                if (i === currentStudyPage) {
+                    indicator.className = 'size-2 rounded-full bg-cyber-cyan shadow-[0_0_8px_rgba(0,230,255,0.5)] transition-all';
+                } else {
+                    indicator.className = 'size-2 rounded-full bg-white/10 transition-all';
+                }
+            }
+
+            // Update buttons
+            document.getElementById('prevBtn').disabled = currentStudyPage === 1;
+            
+            if (currentStudyPage === totalStudyPages) {
+                document.getElementById('nextBtn').classList.add('hidden');
+                document.getElementById('finishBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('nextBtn').classList.remove('hidden');
+                document.getElementById('finishBtn').classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

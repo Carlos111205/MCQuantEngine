@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MC5 QUANT ENGINE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cyber-cyan': '#00E6FF',
+                        'cyber-pink': '#FF00C8',
+                        'cyber-green': '#00E682',
+                        'cyber-red': '#E6233C',
+                        'cyber-orange': '#FF9600',
+                        'cyber-purple': '#9632FF',
+                        'background': 'hsl(220, 25%, 4%)',
+                        'foreground': 'hsl(0, 0%, 95%)',
+                        'card': 'hsl(220, 20%, 7%)',
+                        'border': 'hsl(210, 15%, 18%)',
+                    },
+                    fontFamily: {
+                        display: ['Orbitron', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --color-primary: 186 100% 50%;
+            --color-emphasis: 316 100% 55%;
+            --border-default: 210 15% 18%;
+        }
+        body {
+            background-color: hsl(220, 25%, 4%);
+            color: hsl(0, 0%, 95%);
+            font-family: 'JetBrains Mono', monospace;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .grid-bg {
+            background-image: 
+                linear-gradient(to right, rgba(0, 230, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 230, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .glow-border {
+            border: 1px solid rgba(0, 230, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 230, 255, 0.1), inset 0 0 15px rgba(0, 230, 255, 0.05);
+        }
+        .glow-text {
+            text-shadow: 0 0 10px rgba(0, 230, 255, 0.6), 0 0 20px rgba(0, 230, 255, 0.3);
+        }
+        .hud-corners {
+            position: relative;
+        }
+        .hud-corners::before,
+        .hud-corners::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-color: rgba(0, 230, 255, 0.6);
+            border-style: solid;
+        }
+        .hud-corners::before {
+            top: -1px;
+            left: -1px;
+            border-width: 2px 0 0 2px;
+        }
+        .hud-corners::after {
+            bottom: -1px;
+            right: -1px;
+            border-width: 0 2px 2px 0;
+        }
+        .scanline::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 230, 255, 0.015) 2px,
+                rgba(0, 230, 255, 0.015) 4px
+            );
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="grid-bg scanline">
+    <!-- Notification System -->
+    <div id="notification-container" class="fixed top-24 right-6 z-[60] flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="hidden lg:flex w-[240px] flex-col border-r border-border bg-[hsl(220,20%,5%)]">
+            <div class="p-5 border-b border-border">
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'dashboard:landing' %}" class="relative size-9 rounded-lg bg-cyber-cyan/10 flex items-center justify-center glow-border hover:scale-105 transition-transform">
+                        <i data-lucide="atom" class="size-5 text-cyber-cyan"></i>
+                    </a>
+                    <div>
+                        <h1 class="font-display text-sm font-bold text-white tracking-wide">MC5</h1>
+                        <p class="text-[10px] text-cyber-cyan/60 font-mono tracking-wider">QUANT ENGINE</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 py-4 px-3 space-y-1">
+                <a href="{% url 'dashboard:index' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-mono transition-all duration-200 group {% if request.resolver_match.url_name == 'index' %}bg-cyber-cyan/10 text-cyber-cyan glow-border{% else %}text-[hsl(210,10%,55%)] hover:text-white hover:bg-white/5{% endif %}">
+                    <i data-lucide="layout-dashboard" class="size-4 transition-transform group-hover:scale-110"></i>
+                    <span class="tracking-wide">Dashboard</span>
+                </a>
+                <a href="{% url 'dashboard:risk' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-mono transition-all duration-200 group {% if request.resolver_match.url_name == 'risk' %}bg-cyber-cyan/10 text-cyber-cyan glow-border{% else %}text-[hsl(210,10%,55%)] hover:text-white hover:bg-white/5{% endif %}">
+                    <i data-lucide="shield" class="size-4 transition-transform group-hover:scale-110"></i>
+                    <span class="tracking-wide">Risk Control</span>
+                </a>
+                <a href="{% url 'dashboard:strategy' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-mono transition-all duration-200 group {% if request.resolver_match.url_name == 'strategy' %}bg-cyber-cyan/10 text-cyber-cyan glow-border{% else %}text-[hsl(210,10%,55%)] hover:text-white hover:bg-white/5{% endif %}">
+                    <i data-lucide="trending-up" class="size-4 transition-transform group-hover:scale-110"></i>
+                    <span class="tracking-wide">Strategy</span>
+                </a>
+                <a href="{% url 'dashboard:simulator' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-mono transition-all duration-200 group {% if request.resolver_match.url_name == 'simulator' %}bg-cyber-cyan/10 text-cyber-cyan glow-border{% else %}text-[hsl(210,10%,55%)] hover:text-white hover:bg-white/5{% endif %}">
+                    <i data-lucide="atom" class="size-4 transition-transform group-hover:scale-110"></i>
+                    <span class="tracking-wide">Simulator</span>
+                </a>
+                <a href="{% url 'dashboard:journal' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-mono transition-all duration-200 group {% if request.resolver_match.url_name == 'journal' %}bg-cyber-cyan/10 text-cyber-cyan glow-border{% else %}text-[hsl(210,10%,55%)] hover:text-white hover:bg-white/5{% endif %}">
+                    <i data-lucide="book-open" class="size-4 transition-transform group-hover:scale-110"></i>
+                    <span class="tracking-wide">Journal</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-border">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="size-2 rounded-full bg-cyber-green animate-pulse"></div>
+                    <span class="text-[10px] font-mono text-cyber-green/80 tracking-wider">SYSTEM ONLINE</span>
+                </div>
+                <p class="text-[10px] font-mono text-[hsl(210,8%,40%)]">v1.0.0</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- TopBar -->
+            <header class="h-16 border-b border-border bg-[hsl(220,20%,5%)]/80 backdrop-blur-md flex items-center justify-between px-6">
+                <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-mono text-cyber-cyan/60">SERVER:</span>
+                        <span class="text-xs font-mono text-white glow-text">TOKYO-AWS-01</span>
+                    </div>
+                    <div class="h-4 w-px bg-border"></div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-mono text-cyber-cyan/60">LATENCY:</span>
+                        <span class="text-xs font-mono text-cyber-green">14ms</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3 px-3 py-1.5 rounded-md bg-white/5 border border-border">
+                        <div class="size-2 rounded-full bg-cyber-cyan"></div>
+                        <span class="text-xs font-mono text-white">LIVE FEED</span>
+                    </div>
+                    <button class="size-9 rounded-lg bg-white/5 border border-border flex items-center justify-center text-white hover:bg-white/10 transition-colors">
+                        <i data-lucide="bell" class="size-4"></i>
+                    </button>
+                    <div class="size-9 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center">
+                        <i data-lucide="user" class="size-4 text-cyber-cyan"></i>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    <script>
+        lucide.createIcons();
+
+        function showNotification(title, message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            const id = 'notif-' + Date.now();
+            
+            const colors = {
+                'success': 'border-cyber-green text-cyber-green bg-cyber-green/10',
+                'error': 'border-cyber-red text-cyber-red bg-cyber-red/10',
+                'info': 'border-cyber-cyan text-cyber-cyan bg-cyber-cyan/10',
+                'warning': 'border-cyber-orange text-cyber-orange bg-cyber-orange/10'
+            };
+            
+            const icons = {
+                'success': 'check-circle',
+                'error': 'alert-circle',
+                'info': 'info',
+                'warning': 'alert-triangle'
+            };
+
+            const notif = document.createElement('div');
+            notif.id = id;
+            notif.className = `p-4 rounded-xl border backdrop-blur-md transition-all duration-500 translate-x-full pointer-events-auto shadow-lg ${colors[type]}`;
+            notif.innerHTML = `
+                <div class="flex gap-3">
+                    <i data-lucide="${icons[type]}" class="size-5 shrink-0"></i>
+                    <div>
+                        <h4 class="text-xs font-display font-black uppercase tracking-wider">${title}</h4>
+                        <p class="text-[10px] font-mono opacity-80 mt-1">${message}</p>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(notif);
+            lucide.createIcons();
+            
+            // Animate in
+            setTimeout(() => notif.classList.remove('translate-x-full'), 10);
+            
+            // Auto remove
+            setTimeout(() => {
+                notif.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => notif.remove(), 500);
+            }, 5000);
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
