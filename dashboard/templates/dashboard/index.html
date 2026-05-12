@@ -5,51 +5,51 @@
 <div class="space-y-4">
     <!-- Stats Row -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+        <div class="p-3 rounded-xl bg-card border border-border hud-corners">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Balance</span>
-                <i data-lucide="wallet" class="size-4 text-cyber-cyan"></i>
+                <span class="text-[9px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Balance</span>
+                <i data-lucide="wallet" class="size-3.5 text-cyber-cyan"></i>
             </div>
             <div class="flex items-baseline gap-2">
-                <span class="text-2xl font-display font-bold text-white glow-text">${{ account.balance|floatformat:2 }}</span>
+                <span class="text-xl font-display font-bold text-white glow-text">${{ account.balance|floatformat:2 }}</span>
             </div>
         </div>
-        <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+        <div class="p-3 rounded-xl bg-card border border-border hud-corners">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Equity</span>
-                <i data-lucide="activity" class="size-4 text-cyber-cyan"></i>
+                <span class="text-[9px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Equity</span>
+                <i data-lucide="activity" class="size-3.5 text-cyber-cyan"></i>
             </div>
             <div class="flex items-baseline gap-2">
-                <span class="text-2xl font-display font-bold text-white glow-text">${{ account.equity|floatformat:2 }}</span>
+                <span class="text-xl font-display font-bold text-white glow-text">${{ account.equity|floatformat:2 }}</span>
             </div>
         </div>
-        <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+        <div class="p-3 rounded-xl bg-card border border-border hud-corners">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Total PnL</span>
-                <i data-lucide="trending-up" class="size-4 text-cyber-green"></i>
+                <span class="text-[9px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Total PnL</span>
+                <i data-lucide="trending-up" class="size-3.5 text-cyber-green"></i>
             </div>
             <div class="flex items-baseline gap-2">
-                <span class="text-2xl font-display font-bold {% if stats.totalPnl >= 0 %}text-cyber-green{% else %}text-cyber-red{% endif %} glow-text">
+                <span class="text-xl font-display font-bold {% if stats.totalPnl >= 0 %}text-cyber-green{% else %}text-cyber-red{% endif %} glow-text">
                     {% if stats.totalPnl >= 0 %}+{% endif %}${{ stats.totalPnl|floatformat:2 }}
                 </span>
             </div>
         </div>
-        <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+        <div class="p-3 rounded-xl bg-card border border-border hud-corners">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Win Rate</span>
-                <i data-lucide="target" class="size-4 text-cyber-cyan"></i>
+                <span class="text-[9px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Win Rate</span>
+                <i data-lucide="target" class="size-3.5 text-cyber-cyan"></i>
             </div>
             <div class="flex items-baseline gap-2">
-                <span class="text-2xl font-display font-bold text-white glow-text">{{ stats.winRate }}%</span>
+                <span class="text-xl font-display font-bold text-white glow-text">{{ stats.winRate }}%</span>
             </div>
         </div>
-        <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+        <div class="p-3 rounded-xl bg-card border border-border hud-corners">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Trades</span>
-                <i data-lucide="bar-chart-2" class="size-4 text-cyber-cyan"></i>
+                <span class="text-[9px] font-mono text-cyber-cyan/60 uppercase tracking-wider">Trades</span>
+                <i data-lucide="bar-chart-2" class="size-3.5 text-cyber-cyan"></i>
             </div>
             <div class="flex items-baseline gap-2">
-                <span class="text-2xl font-display font-bold text-white glow-text">{{ stats.totalTrades }}</span>
+                <span class="text-xl font-display font-bold text-white glow-text">{{ stats.totalTrades }}</span>
             </div>
         </div>
     </div>
@@ -204,25 +204,25 @@
         <!-- Right Column -->
         <div class="col-span-12 xl:col-span-4 space-y-4">
             <!-- Regime Indicator -->
-            <div class="p-6 rounded-xl bg-card border border-border hud-corners">
-                <h3 class="text-xs font-display font-bold text-white uppercase tracking-wider mb-4">Market Regime</h3>
-                <div class="space-y-4">
+            <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+                <h3 class="text-[10px] font-display font-bold text-white uppercase tracking-wider mb-3">Market Regime</h3>
+                <div class="space-y-3">
                     <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-mono text-cyber-cyan/60">CURRENT</span>
-                        <span class="px-2 py-0.5 rounded bg-cyber-cyan/10 text-cyber-cyan text-[10px] font-mono border border-cyber-cyan/30">{{ regime.regime }}</span>
+                        <span class="text-[9px] font-mono text-cyber-cyan/60">CURRENT</span>
+                        <span class="px-2 py-0.5 rounded bg-cyber-cyan/10 text-cyber-cyan text-[9px] font-mono border border-cyber-cyan/30">{{ regime.regime }}</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-mono text-cyber-cyan/60">PROBABILITY</span>
+                        <span class="text-[9px] font-mono text-cyber-cyan/60">PROBABILITY</span>
                         <span class="text-xs font-mono text-white">{{ regime.probability|mul:100|floatformat:1 }}%</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-mono text-cyber-cyan/60">VOLATILITY</span>
+                        <span class="text-[9px] font-mono text-cyber-cyan/60">VOLATILITY</span>
                         <span class="text-xs font-mono text-cyber-orange">{{ regime.volatility }}</span>
                     </div>
-                    <div class="pt-4 border-t border-border">
+                    <div class="pt-3 border-t border-border">
                         <div class="flex justify-between mb-2">
-                            <span class="text-[10px] font-mono text-cyber-cyan/60 uppercase">Trend Strength (ADX)</span>
-                            <span class="text-[10px] font-mono text-cyber-cyan">{{ regime.adx }}</span>
+                            <span class="text-[9px] font-mono text-cyber-cyan/60 uppercase">Trend Strength (ADX)</span>
+                            <span class="text-[9px] font-mono text-cyber-cyan">{{ regime.adx }}</span>
                         </div>
                         <div class="h-1 bg-white/5 rounded-full overflow-hidden">
                             <div class="h-full bg-cyber-cyan shadow-[0_0_8px_rgba(0,230,255,0.5)]" style="width: {{ regime.adx }}%"></div>
@@ -232,22 +232,22 @@
             </div>
 
             <!-- Risk Gauges -->
-            <div class="p-6 rounded-xl bg-card border border-border hud-corners">
-                <h3 class="text-xs font-display font-bold text-white uppercase tracking-wider mb-4">Risk Exposure</h3>
+            <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+                <h3 class="text-[10px] font-display font-bold text-white uppercase tracking-wider mb-3">Risk Exposure</h3>
                 <div class="grid grid-cols-2 gap-4">
                     {% for metric in risk_metrics %}
                     {% if forloop.counter <= 2 %}
                     <div class="text-center">
-                        <div class="relative size-20 mx-auto mb-2">
+                        <div class="relative size-16 mx-auto mb-2">
                             <svg class="size-full transform -rotate-90">
-                                <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="4" fill="transparent" class="text-white/5"></circle>
-                                <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="4" fill="transparent" class="{% if metric.status == 'warning' %}text-cyber-orange{% else %}text-cyber-cyan{% endif %}" stroke-dasharray="226.2" stroke-dashoffset="{{ 226.2|sub:metric.value|div:metric.max|mul:226.2 }}"></circle>
+                                <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="3" fill="transparent" class="text-white/5"></circle>
+                                <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="3" fill="transparent" class="{% if metric.status == 'warning' %}text-cyber-orange{% else %}text-cyber-cyan{% endif %}" stroke-dasharray="175.9" stroke-dashoffset="{{ 175.9|sub:metric.value|div:metric.max|mul:175.9 }}"></circle>
                             </svg>
                             <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                <span class="text-sm font-bold text-white">{{ metric.value }}{{ metric.unit }}</span>
+                                <span class="text-xs font-bold text-white">{{ metric.value }}{{ metric.unit }}</span>
                             </div>
                         </div>
-                        <span class="text-[9px] font-mono text-cyber-cyan/60 uppercase">{{ metric.label }}</span>
+                        <span class="text-[8px] font-mono text-cyber-cyan/60 uppercase">{{ metric.label }}</span>
                     </div>
                     {% endif %}
                     {% endfor %}
@@ -255,18 +255,18 @@
             </div>
 
             <!-- Pattern Scores -->
-            <div class="p-6 rounded-xl bg-card border border-border hud-corners">
-                <h3 class="text-xs font-display font-bold text-white uppercase tracking-wider mb-4">Neural Pattern Recognition</h3>
-                <div class="space-y-3">
+            <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+                <h3 class="text-[10px] font-display font-bold text-white uppercase tracking-wider mb-3">Neural Pattern Recognition</h3>
+                <div class="space-y-2">
                     {% for pattern in patterns %}
-                    <div class="flex items-center justify-between p-2 rounded bg-white/5 border border-white/5">
+                    <div class="flex items-center justify-between p-1.5 rounded bg-white/5 border border-white/5">
                         <div class="flex flex-col">
-                            <span class="text-[10px] font-mono text-white">{{ pattern.name }}</span>
-                            <span class="text-[9px] font-mono text-cyber-cyan/40">{{ pattern.lastSeen }}</span>
+                            <span class="text-[9px] font-mono text-white leading-tight">{{ pattern.name }}</span>
+                            <span class="text-[8px] font-mono text-cyber-cyan/40">{{ pattern.lastSeen }}</span>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs font-mono font-bold text-cyber-cyan">{{ pattern.score|mul:100|floatformat:0 }}</span>
-                            <div class="w-12 h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-mono font-bold text-cyber-cyan">{{ pattern.score|mul:100|floatformat:0 }}</span>
+                            <div class="w-10 h-0.5 bg-white/5 rounded-full overflow-hidden">
                                 <div class="h-full bg-cyber-cyan shadow-[0_0_8px_rgba(0,230,255,0.5)]" style="width: {{ pattern.score|mul:100 }}%"></div>
                             </div>
                         </div>
