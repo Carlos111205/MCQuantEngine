@@ -166,6 +166,9 @@ def download_study_material(request, file_type):
 
     return FileResponse(buffer, content_type=content_type, as_attachment=True, filename=filename)
 
+def splash(request):
+    return render(request, 'dashboard/splash.html')
+
 def landing(request):
     return render(request, 'dashboard/landing.html')
 

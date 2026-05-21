@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MC5 QUANT ENGINE | Initializing...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cyber-cyan': '#00E6FF',
+                        'cyber-pink': '#FF00C8',
+                        'cyber-green': '#00E682',
+                        'cyber-red': '#E6233C',
+                        'cyber-orange': '#FF9600',
+                        'cyber-purple': '#9632FF',
+                        'background': 'hsl(220, 25%, 4%)',
+                    },
+                    fontFamily: {
+                        display: ['Orbitron', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: hsl(220, 25%, 4%);
+            color: hsl(0, 0%, 95%);
+            font-family: 'JetBrains Mono', monospace;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .grid-bg {
+            background-image: 
+                linear-gradient(to right, rgba(0, 230, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 230, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .glow-text {
+            text-shadow: 0 0 15px rgba(0, 230, 255, 0.5);
+        }
+        .scanline::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 230, 255, 0.01) 2px,
+                rgba(0, 230, 255, 0.01) 4px
+            );
+            pointer-events: none;
+            z-index: 50;
+        }
+        .loading-bar {
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+        .ring-animate {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="grid-bg scanline">
+    <div class="relative z-10 w-full max-w-2xl px-6 text-center">
+        <!-- Logo/Icon -->
+        <div class="relative size-24 mx-auto mb-12">
+            <div class="absolute inset-0 rounded-full border-2 border-cyber-cyan ring-animate"></div>
+            <div class="absolute inset-0 rounded-full border-2 border-cyber-cyan ring-animate" style="animation-delay: 1s"></div>
+            <div class="size-full rounded-full bg-cyber-cyan/10 flex items-center justify-center border border-cyber-cyan/50 backdrop-blur-sm">
+                <i data-lucide="atom" class="size-12 text-cyber-cyan animate-spin-slow"></i>
+            </div>
+        </div>
+
+        <!-- Welcome Text -->
+        <h1 class="font-display text-4xl md:text-6xl font-black text-white mb-4 tracking-tight glow-text">
+            Welcome to <span class="text-cyber-cyan">MC5</span>
+        </h1>
+        <p class="text-cyber-cyan/60 font-mono text-sm uppercase tracking-[0.3em] mb-12">
+            Quant Engine & Risk Guardian
+        </p>
+
+        <!-- Information Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12 opacity-0 translate-y-4 transition-all duration-1000" id="info-cards">
+            <div class="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
+                <i data-lucide="zap" class="size-5 text-cyber-cyan mx-auto mb-2"></i>
+                <h3 class="text-[10px] font-display font-bold text-white uppercase mb-1">Ultra-Fast</h3>
+                <p class="text-[9px] font-mono text-white/40">100k simulations in ms</p>
+            </div>
+            <div class="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
+                <i data-lucide="shield-check" class="size-5 text-cyber-green mx-auto mb-2"></i>
+                <h3 class="text-[10px] font-display font-bold text-white uppercase mb-1">Secure</h3>
+                <p class="text-[9px] font-mono text-white/40">Risk Guardian Active</p>
+            </div>
+            <div class="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
+                <i data-lucide="brain-circuit" class="size-5 text-cyber-pink mx-auto mb-2"></i>
+                <h3 class="text-[10px] font-display font-bold text-white uppercase mb-1">Neural</h3>
+                <p class="text-[9px] font-mono text-white/40">Pattern Intelligence</p>
+            </div>
+        </div>
+
+        <!-- Loading Progress -->
+        <div class="space-y-4 max-w-md mx-auto">
+            <div class="flex justify-between items-end">
+                <span id="loading-status" class="text-[10px] font-mono text-cyber-cyan uppercase tracking-widest">Initializing Neural Core...</span>
+                <span id="loading-percent" class="text-xs font-mono text-white">0%</span>
+            </div>
+            <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden border border-white/10">
+                <div id="progress-bar" class="loading-bar h-full bg-cyber-cyan shadow-[0_0_15px_#00E6FF]"></div>
+            </div>
+            <div class="flex justify-center gap-6 pt-4">
+                <div class="flex items-center gap-2">
+                    <span class="size-1.5 rounded-full bg-cyber-green animate-pulse"></span>
+                    <span class="text-[8px] font-mono text-white/40 uppercase">TOKYO-AWS-01 ONLINE</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="size-1.5 rounded-full bg-cyber-cyan animate-pulse" style="animation-delay: 0.5s"></span>
+                    <span class="text-[8px] font-mono text-white/40 uppercase">LATENCY: 14ms</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skip Button -->
+        <a href="{% url 'dashboard:landing' %}" class="absolute bottom-12 left-1/2 -translate-x-1/2 px-6 py-2 rounded-full border border-white/10 text-[9px] font-mono text-white/20 hover:text-white hover:border-white/30 transition-all uppercase tracking-widest">
+            Bypass Initialization
+        </a>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const progressBar = document.getElementById('progress-bar');
+        const statusText = document.getElementById('loading-status');
+        const percentText = document.getElementById('loading-percent');
+        const infoCards = document.getElementById('info-cards');
+
+        const statuses = [
+            'Initializing Neural Core...',
+            'Establishing AWS-TOKYO Handshake...',
+            'Syncing Real-time Market Data...',
+            'Deploying Risk Guardian Protocols...',
+            'Syncing with Bulawayo Node (CAT)...',
+            'Finalizing HUD Interface...',
+            'System Ready.'
+        ];
+
+        let progress = 0;
+        const duration = 5000; // 5 seconds
+        const interval = 50;
+        const step = (100 / (duration / interval));
+
+        // Fade in info cards after a short delay
+        setTimeout(() => {
+            infoCards.classList.remove('opacity-0', 'translate-y-4');
+        }, 500);
+
+        const timer = setInterval(() => {
+            progress += step;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(timer);
+                setTimeout(() => {
+                    window.location.href = "{% url 'dashboard:landing' %}";
+                }, 500);
+            }
+
+            progressBar.style.width = `${progress}%`;
+            percentText.innerText = `${Math.floor(progress)}%`;
+
+            // Update status text based on progress
+            const statusIndex = Math.floor((progress / 100) * (statuses.length - 1));
+            statusText.innerText = statuses[statusIndex];
+        }, interval);
+    </script>
+</body>
+</html>
