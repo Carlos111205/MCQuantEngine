@@ -100,50 +100,83 @@
     </div>
 
     <!-- Full Pattern Table -->
-    <div class="p-6 rounded-xl bg-card border border-border hud-corners">
-        <h3 class="text-sm font-display font-bold text-white uppercase tracking-wider mb-6">Complete Pattern Database</h3>
-        <div class="overflow-x-auto">
-            <table class="w-full text-xs font-mono">
-                <thead>
-                    <tr class="text-[10px] text-[hsl(210,8%,40%)] uppercase tracking-wider border-b border-border/50">
-                        <th class="text-left pb-4 pr-4">Pattern</th>
-                        <th class="text-left pb-4 pr-4">Signals</th>
-                        <th class="text-left pb-4 pr-4">Win Rate</th>
-                        <th class="text-left pb-4 pr-4">Avg Return</th>
-                        <th class="text-left pb-4 pr-4">Score & Action</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-border/50">
-                    {% for pattern in patterns %}
-                    <tr class="group hover:bg-white/5 transition-colors">
-                        <td class="py-4 pr-4">
-                            <div class="flex flex-col">
-                                <span class="font-bold text-white">{{ pattern.name }}</span>
-                                <span class="text-[9px] text-cyber-cyan/40 uppercase tracking-wider">{{ pattern.type }}</span>
+    <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-12 lg:col-span-8">
+            <div class="p-6 rounded-xl bg-card border border-border hud-corners h-full">
+                <h3 class="text-sm font-display font-bold text-white uppercase tracking-wider mb-6">Complete Pattern Database</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs font-mono">
+                        <thead>
+                            <tr class="text-[10px] text-[hsl(210,8%,40%)] uppercase tracking-wider border-b border-border/50">
+                                <th class="text-left pb-4 pr-4">Pattern</th>
+                                <th class="text-left pb-4 pr-4">Signals</th>
+                                <th class="text-left pb-4 pr-4">Win Rate</th>
+                                <th class="text-left pb-4 pr-4">Avg Return</th>
+                                <th class="text-left pb-4 pr-4">Score & Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border/50">
+                            {% for pattern in patterns %}
+                            <tr class="group hover:bg-white/5 transition-colors">
+                                <td class="py-4 pr-4">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-white">{{ pattern.name }}</span>
+                                        <span class="text-[9px] text-cyber-cyan/40 uppercase tracking-wider">{{ pattern.type }}</span>
+                                    </div>
+                                </td>
+                                <td class="py-4 pr-4 text-white/60 font-mono">{{ pattern.occurrences }}</td>
+                                <td class="py-4 pr-4">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-cyber-green font-bold">{{ pattern.winRate }}%</span>
+                                        <div class="flex-1 min-w-[40px] h-1 bg-white/5 rounded-full overflow-hidden">
+                                            <div class="h-full bg-cyber-green shadow-[0_0_8px_rgba(0,230,130,0.5)]" style="width: {{ pattern.winRate }}%"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-4 pr-4">
+                                    <span class="text-cyber-cyan font-bold">+{{ pattern.avgReturn }}%</span>
+                                </td>
+                                <td class="py-4 pr-4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xs font-mono text-white/60">{{ pattern.score }}</span>
+                                        <button onclick="runBacktest('{{ pattern.name }}')" class="px-2 py-1 rounded bg-cyber-cyan/10 border border-cyber-cyan/30 text-[9px] font-mono text-cyber-cyan hover:bg-cyber-cyan hover:text-black transition-all">BACKTEST</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strategy Modules -->
+        <div class="col-span-12 lg:col-span-4">
+            <div class="p-6 rounded-xl bg-card border border-border hud-corners h-full">
+                <h3 class="text-sm font-display font-bold text-white uppercase tracking-wider mb-6">Advanced Strategies</h3>
+                <div class="space-y-4">
+                    {% for strategy in trading_strategies %}
+                    <div class="p-4 rounded-lg bg-white/5 border border-border hover:border-cyber-cyan/30 transition-all group">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="text-xs font-display font-bold text-cyber-cyan uppercase">{{ strategy.name }}</h4>
+                            <span class="px-1.5 py-0.5 rounded bg-cyber-green/10 text-cyber-green text-[8px] font-mono border border-cyber-green/30">{{ strategy.status }}</span>
+                        </div>
+                        <p class="text-[10px] font-mono text-white/40 leading-relaxed mb-3">{{ strategy.description }}</p>
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div class="p-2 rounded bg-black/20 text-center">
+                                <p class="text-[8px] font-mono text-white/20 uppercase">Win Rate</p>
+                                <p class="text-[11px] font-mono text-white font-bold">{{ strategy.win_rate }}%</p>
                             </div>
-                        </td>
-                        <td class="py-4 pr-4 text-white/60 font-mono">{{ pattern.occurrences }}</td>
-                        <td class="py-4 pr-4">
-                            <div class="flex items-center gap-2">
-                                <span class="text-cyber-green font-bold">{{ pattern.winRate }}%</span>
-                                <div class="flex-1 min-w-[40px] h-1 bg-white/5 rounded-full overflow-hidden">
-                                    <div class="h-full bg-cyber-green shadow-[0_0_8px_rgba(0,230,130,0.5)]" style="width: {{ pattern.winRate }}%"></div>
-                                </div>
+                            <div class="p-2 rounded bg-black/20 text-center">
+                                <p class="text-[8px] font-mono text-white/20 uppercase">Risk</p>
+                                <p class="text-[11px] font-mono text-cyber-orange font-bold">{{ strategy.risk }}</p>
                             </div>
-                        </td>
-                        <td class="py-4 pr-4">
-                            <span class="text-cyber-cyan font-bold">+{{ pattern.avgReturn }}%</span>
-                        </td>
-                        <td class="py-4 pr-4">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs font-mono text-white/60">{{ pattern.score }}</span>
-                                <button onclick="runBacktest('{{ pattern.name }}')" class="px-2 py-1 rounded bg-cyber-cyan/10 border border-cyber-cyan/30 text-[9px] font-mono text-cyber-cyan hover:bg-cyber-cyan hover:text-black transition-all">BACKTEST</button>
-                            </div>
-                        </td>
-                    </tr>
+                        </div>
+                        <button class="w-full py-2 rounded bg-cyber-cyan/10 border border-cyber-cyan/30 text-[9px] font-mono text-cyber-cyan hover:bg-cyber-cyan hover:text-black transition-all">DEPLOY STRATEGY</button>
+                    </div>
                     {% endfor %}
-                </tbody>
-            </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>

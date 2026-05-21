@@ -2,3 +2,7 @@ Django>=5.0.0
 requests
 gunicorn
 whitenoise
+python-pptx
+reportlab
+numpy
+pandas

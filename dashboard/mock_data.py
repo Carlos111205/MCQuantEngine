@@ -101,3 +101,37 @@ symbol_colors = {
     'NAS100': '#00E682',
     'BTCUSD': '#FF9600',
 }
+
+market_alerts = [
+    { 'id': 1, 'symbol': 'EURUSD', 'type': 'SIGNAL', 'direction': 'BUY', 'message': 'H1 Bullish Divergence detected on RSI. Confluence with S1 Pivot.', 'time': '5m ago', 'priority': 'HIGH' },
+    { 'id': 2, 'symbol': 'XAUUSD', 'type': 'ALERT', 'direction': 'NEUTRAL', 'message': 'High volatility expected in 15m due to FOMC Meeting Minutes.', 'time': '12m ago', 'priority': 'CRITICAL' },
+    { 'id': 3, 'symbol': 'BTCUSD', 'type': 'SIGNAL', 'direction': 'SELL', 'message': 'Bearish Engulfing on M15. Institutional sell-off detected in order flow.', 'time': '20m ago', 'priority': 'MEDIUM' },
+    { 'id': 4, 'symbol': 'GBPUSD', 'type': 'ANALYSIS', 'direction': 'BUY', 'message': 'Price approaching major demand zone at 1.2650. Watch for reversal.', 'time': '45m ago', 'priority': 'LOW' },
+]
+
+trading_strategies = [
+    { 
+        'name': 'Neural Momentum', 
+        'description': 'AI-driven momentum strategy using LSTM networks to predict short-term price movements.',
+        'risk': 'Medium',
+        'timeframe': 'M15/H1',
+        'status': 'ACTIVE',
+        'win_rate': 68.4
+    },
+    { 
+        'name': 'Institutional Liquidity', 
+        'description': 'Tracks large block orders and liquidity pools to identify high-probability reversal zones.',
+        'risk': 'Low',
+        'timeframe': 'H1/H4',
+        'status': 'OPTIMIZING',
+        'win_rate': 72.1
+    },
+    { 
+        'name': 'Mean Reversion Pro', 
+        'description': 'Statistical arbitrage strategy focused on overextended market conditions using Bollinger Bands and ATR.',
+        'risk': 'High',
+        'timeframe': 'M5',
+        'status': 'BACKTESTING',
+        'win_rate': 61.8
+    }
+]

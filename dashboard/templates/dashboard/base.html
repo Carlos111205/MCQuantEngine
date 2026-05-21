@@ -105,6 +105,52 @@
     <div id="notification-container" class="fixed top-24 right-6 z-[60] flex flex-col gap-2 max-w-[240px] w-full pointer-events-none"></div>
 
     <div class="flex h-screen overflow-hidden">
+        <!-- Notification Dropdown (Hidden) -->
+        <div id="notif-dropdown" class="fixed top-16 right-20 w-80 bg-card border border-border rounded-xl shadow-2xl z-[70] hidden hud-corners">
+            <div class="p-4 border-b border-border flex justify-between items-center">
+                <h3 class="text-xs font-display font-bold text-white uppercase tracking-wider">System Logs</h3>
+                <span class="text-[9px] font-mono text-cyber-cyan/60 uppercase">Real-time Feed</span>
+            </div>
+            <div id="notif-logs" class="max-h-96 overflow-y-auto p-2 space-y-2 custom-scrollbar">
+                <div class="p-3 text-center text-white/20 font-mono text-[10px] italic">No recent system activities</div>
+            </div>
+        </div>
+
+        <!-- Profile Dropdown (Hidden) -->
+        <div id="profile-dropdown" class="fixed top-16 right-6 w-64 bg-card border border-border rounded-xl shadow-2xl z-[70] hidden hud-corners">
+            <div class="p-5 border-b border-border">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="size-10 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center">
+                        <i data-lucide="user" class="size-5 text-cyber-cyan"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-display font-bold text-white uppercase">{{ user.username|default:"QUANT_USER" }}</h4>
+                        <p class="text-[9px] font-mono text-cyber-cyan/60 uppercase">Tier: Institutional</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="p-2 rounded bg-white/5 border border-border text-center">
+                        <p class="text-[8px] font-mono text-white/40 uppercase">Status</p>
+                        <p class="text-[10px] font-mono text-cyber-green uppercase">Verified</p>
+                    </div>
+                    <div class="p-2 rounded bg-white/5 border border-border text-center">
+                        <p class="text-[8px] font-mono text-white/40 uppercase">Region</p>
+                        <p class="text-[10px] font-mono text-white uppercase">TOKYO</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-2">
+                <button onclick="showNotification('Engine Settings', 'System configuration is currently locked for maintenance.', 'info')" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[10px] font-mono text-white/60 hover:text-white hover:bg-white/5 transition-all">
+                    <i data-lucide="settings" class="size-3.5"></i>
+                    <span>ENGINE SETTINGS</span>
+                </button>
+                <button onclick="window.location.href='{% url 'dashboard:landing' %}'" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[10px] font-mono text-cyber-red/60 hover:text-cyber-red hover:bg-cyber-red/5 transition-all mt-1">
+                    <i data-lucide="log-out" class="size-3.5"></i>
+                    <span>TERMINATE SESSION</span>
+                </button>
+            </div>
+        </div>
+
         <!-- Sidebar -->
         <aside class="hidden lg:flex w-[240px] flex-col border-r border-border bg-[hsl(220,20%,5%)]">
             <div class="p-5 border-b border-border">
@@ -175,12 +221,13 @@
                     </button>
                     <div class="hidden xs:flex items-center gap-3 px-3 py-1.5 rounded-md bg-white/5 border border-border">
                         <div class="size-2 rounded-full bg-cyber-cyan"></div>
-                        <span class="text-xs font-mono text-white">LIVE FEED</span>
+                        <span id="real-time-clock" class="text-xs font-mono text-white">00:00:00 UTC</span>
                     </div>
-                    <button class="size-9 rounded-lg bg-white/5 border border-border flex items-center justify-center text-white hover:bg-white/10 transition-colors">
+                    <button onclick="toggleDropdown('notif-dropdown')" class="size-9 rounded-lg bg-white/5 border border-border flex items-center justify-center text-white hover:bg-white/10 transition-colors relative">
                         <i data-lucide="bell" class="size-4"></i>
+                        <span id="notif-badge" class="absolute -top-1 -right-1 size-3 bg-cyber-pink rounded-full border-2 border-background hidden"></span>
                     </button>
-                    <div class="size-9 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center">
+                    <div onclick="toggleDropdown('profile-dropdown')" class="size-9 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center cursor-pointer hover:bg-cyber-cyan/20 transition-all">
                         <i data-lucide="user" class="size-4 text-cyber-cyan"></i>
                     </div>
                 </div>
@@ -356,13 +403,60 @@
                     </div>
                 </div>
 
-                <!-- Page 5: Risk & Assets -->
+                <!-- Page 5: Monte Carlo Simulation -->
                 <div id="study-page-5" class="study-page min-h-full hidden flex flex-col py-2 sm:py-4">
+                    <div class="flex-1 space-y-4 sm:space-y-6">
+                        <div class="text-center space-y-2">
+                            <span class="px-3 py-1 rounded-full bg-cyber-pink/10 border border-cyber-pink/30 text-[9px] sm:text-[10px] font-mono text-cyber-pink uppercase">Module 05 // Advanced Stochastic Modelling</span>
+                            <h3 class="font-display text-2xl sm:text-3xl font-black text-white">Monte Carlo <span class="text-cyber-pink">Framework</span></h3>
+                        </div>
+                        <div class="prose prose-invert max-w-none font-mono text-[10px] sm:text-xs text-white/70 space-y-4 overflow-y-auto max-h-[400px] custom-scrollbar pr-4">
+                            <p>Monte Carlo (MC) simulation is a cornerstone of stochastic computational modelling. While a deterministic model yields a single, unique outcome from fixed inputs, a stochastic model uses pseudo-random sampling from probability distributions to simulate thousands of hypothetical futures.</p>
+                            
+                            <div class="p-4 rounded-xl bg-white/5 border border-border border-l-4 border-l-cyber-pink">
+                                <h4 class="text-cyber-pink font-display font-bold mb-2 uppercase">MC5 Implementation</h4>
+                                <p>A trading performance engine like <strong>MC5</strong> uses Monte Carlo simulation to break historical performance down into atomic parameters and resamples them to stress-test the strategy under thousands of alternate market conditions.</p>
+                            </div>
+
+                            <div class="grid sm:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <h5 class="text-white font-bold uppercase text-[10px]">Critical Risk Metrics:</h5>
+                                    <ul class="list-disc list-inside space-y-1 opacity-80">
+                                        <li><strong>Risk of Ruin:</strong> Probability of hitting liquidation before profit targets.</li>
+                                        <li><strong>Max Drawdown Distributions:</strong> 95th/99th percentile of potential equity drops.</li>
+                                        <li><strong>Wealth Expectancy:</strong> Range of final account balances.</li>
+                                    </ul>
+                                </div>
+                                <div class="space-y-2">
+                                    <h5 class="text-white font-bold uppercase text-[10px]">Mathematical Paradigms:</h5>
+                                    <ul class="list-disc list-inside space-y-1 opacity-80">
+                                        <li><strong>Bootstrapping:</strong> Trade-level resampling with replacement.</li>
+                                        <li><strong>GBM (Brownian Motion):</strong> Asset price path simulation via SDE.</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-black/40 border border-border font-mono text-[9px] sm:text-[10px] text-cyber-cyan overflow-x-auto">
+                                <p class="text-white/40 mb-2">// Vectorized Monte Carlo Core</p>
+                                <code class="whitespace-pre">def run_monte_carlo_mc5(trade_pool, capital, risk, trades):
+    # Randomly sample trades with replacement
+    sampled_indices = np.random.choice(len(trade_pool), size=(trades, 10000))
+    # Simulate compounding equity path
+    equity_matrix = np.zeros((trades + 1, 10000))
+    # ... calculation logic ...
+    return results</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 6: Risk & Assets -->
+                <div id="study-page-6" class="study-page min-h-full hidden flex flex-col py-2 sm:py-4">
                     <div class="flex-1 flex flex-col gap-6 sm:gap-8">
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start">
                             <div class="space-y-4 sm:space-y-6">
                                 <div class="space-y-2 sm:space-y-3">
-                                    <span class="px-3 py-1 rounded-full bg-cyber-orange/10 border border-cyber-orange/30 text-[9px] sm:text-[10px] font-mono text-cyber-orange uppercase">Module 04 // Risk & Exposure</span>
+                                    <span class="px-3 py-1 rounded-full bg-cyber-orange/10 border border-cyber-orange/30 text-[9px] sm:text-[10px] font-mono text-cyber-orange uppercase">Module 06 // Risk & Exposure</span>
                                     <h3 class="font-display text-2xl sm:text-3xl md:text-4xl font-black text-white">Market <span class="text-cyber-orange">Coverage</span></h3>
                                 </div>
                                 <div class="grid grid-cols-2 gap-2 sm:gap-3">
@@ -460,6 +554,7 @@
                     <div id="page-indicator-3" class="size-1.5 sm:size-2 rounded-full bg-white/10 transition-all"></div>
                     <div id="page-indicator-4" class="size-1.5 sm:size-2 rounded-full bg-white/10 transition-all"></div>
                     <div id="page-indicator-5" class="size-1.5 sm:size-2 rounded-full bg-white/10 transition-all"></div>
+                    <div id="page-indicator-6" class="size-1.5 sm:size-2 rounded-full bg-white/10 transition-all"></div>
                 </div>
                 <div class="flex gap-2 sm:gap-4">
                     <button id="prevBtn" onclick="changeStudyPage(-1)" class="px-3 sm:px-6 py-1.5 sm:py-2 rounded-lg bg-white/5 border border-border text-[10px] sm:text-xs font-display font-bold text-white/40 hover:text-white hover:border-white/30 transition-all disabled:opacity-0" disabled>
@@ -479,6 +574,48 @@
     <script>
         lucide.createIcons();
 
+        // Real-time Clock
+        function updateClock() {
+            const now = new Date();
+            const options = { 
+                timeZone: 'Africa/Harare', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit', 
+                hour12: false 
+            };
+            const timeString = now.toLocaleTimeString('en-GB', options) + ' CAT';
+            const clockEl = document.getElementById('real-time-clock');
+            if (clockEl) clockEl.innerText = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Dropdown Logic
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            const isHidden = dropdown.classList.contains('hidden');
+            
+            // Close all first
+            document.getElementById('notif-dropdown').classList.add('hidden');
+            document.getElementById('profile-dropdown').classList.add('hidden');
+            
+            if (isHidden) {
+                dropdown.classList.remove('hidden');
+                if (id === 'notif-dropdown') {
+                    document.getElementById('notif-badge').classList.add('hidden');
+                }
+            }
+        }
+
+        // Close dropdowns on outside click
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('button') && !e.target.closest('.hud-corners') && !e.target.closest('.size-9')) {
+                document.getElementById('notif-dropdown').classList.add('hidden');
+                document.getElementById('profile-dropdown').classList.add('hidden');
+            }
+        });
+
         let notificationQueue = [];
         let isProcessingQueue = false;
 
@@ -487,6 +624,31 @@
             isProcessingQueue = true;
 
             const { title, message, type } = notificationQueue.shift();
+            
+            // Add to system logs
+            const logsContainer = document.getElementById('notif-logs');
+            if (logsContainer) {
+                if (logsContainer.innerText.includes('No recent system activities')) logsContainer.innerHTML = '';
+                
+                const logEntry = document.createElement('div');
+                const logColors = {
+                    'success': 'text-cyber-green',
+                    'error': 'text-cyber-red',
+                    'info': 'text-cyber-cyan',
+                    'warning': 'text-cyber-orange'
+                };
+                logEntry.className = 'p-2 rounded bg-white/5 border-l-2 border-current ' + logColors[type];
+                logEntry.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[8px] font-black uppercase">${title}</span>
+                        <span class="text-[7px] opacity-50">${new Date().toLocaleTimeString()}</span>
+                    </div>
+                    <p class="text-[9px] font-mono text-white/70">${message}</p>
+                `;
+                logsContainer.prepend(logEntry);
+                document.getElementById('notif-badge').classList.remove('hidden');
+            }
+
             const container = document.getElementById('notification-container');
             const id = 'notif-' + Date.now();
             
@@ -544,7 +706,7 @@
          }
 
          let currentStudyPage = 1;
-         const totalStudyPages = 5;
+         const totalStudyPages = 6;
 
          function togglePresentation() {
              const modal = document.getElementById('presentationModal');

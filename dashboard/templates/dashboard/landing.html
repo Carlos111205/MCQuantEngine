@@ -350,13 +350,49 @@
                     </div>
                 </div>
 
-                <!-- Page 5: Risk & Assets -->
+                <!-- Page 5: Monte Carlo Simulation -->
                 <div id="study-page-5" class="study-page min-h-full hidden flex flex-col py-2 sm:py-4">
+                    <div class="flex-1 space-y-4 sm:space-y-6">
+                        <div class="text-center space-y-2">
+                            <span class="px-3 py-1 rounded-full bg-cyber-pink/10 border border-cyber-pink/30 text-[9px] sm:text-[10px] font-mono text-cyber-pink uppercase">Module 05 // Advanced Stochastic Modelling</span>
+                            <h3 class="font-display text-2xl sm:text-3xl font-black text-white">Monte Carlo <span class="text-cyber-pink">Framework</span></h3>
+                        </div>
+                        <div class="prose prose-invert max-w-none font-mono text-[10px] sm:text-xs text-white/70 space-y-4 overflow-y-auto max-h-[400px] custom-scrollbar pr-4">
+                            <p>Monte Carlo (MC) simulation is a cornerstone of stochastic computational modelling. While a deterministic model yields a single, unique outcome from fixed inputs, a stochastic model uses pseudo-random sampling from probability distributions to simulate thousands of hypothetical futures.</p>
+                            
+                            <div class="p-4 rounded-xl bg-white/5 border border-border border-l-4 border-l-cyber-pink">
+                                <h4 class="text-cyber-pink font-display font-bold mb-2 uppercase">MC5 Implementation</h4>
+                                <p>A trading performance engine like <strong>MC5</strong> uses Monte Carlo simulation to break historical performance down into atomic parameters and resamples them to stress-test the strategy under thousands of alternate market conditions.</p>
+                            </div>
+
+                            <div class="grid sm:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <h5 class="text-white font-bold uppercase text-[10px]">Critical Risk Metrics:</h5>
+                                    <ul class="list-disc list-inside space-y-1 opacity-80">
+                                        <li><strong>Risk of Ruin:</strong> Probability of hitting liquidation before profit targets.</li>
+                                        <li><strong>Max Drawdown Distributions:</strong> 95th/99th percentile of potential equity drops.</li>
+                                        <li><strong>Wealth Expectancy:</strong> Range of final account balances.</li>
+                                    </ul>
+                                </div>
+                                <div class="space-y-2">
+                                    <h5 class="text-white font-bold uppercase text-[10px]">Mathematical Paradigms:</h5>
+                                    <ul class="list-disc list-inside space-y-1 opacity-80">
+                                        <li><strong>Bootstrapping:</strong> Trade-level resampling with replacement.</li>
+                                        <li><strong>GBM (Brownian Motion):</strong> Asset price path simulation via SDE.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 6: Risk & Assets -->
+                <div id="study-page-6" class="study-page min-h-full hidden flex flex-col py-2 sm:py-4">
                     <div class="flex-1 flex flex-col gap-6 sm:gap-8">
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start">
                             <div class="space-y-4 sm:space-y-6">
                                 <div class="space-y-2 sm:space-y-3">
-                                    <span class="px-3 py-1 rounded-full bg-cyber-orange/10 border border-cyber-orange/30 text-[9px] sm:text-[10px] font-mono text-cyber-orange uppercase">Module 04 // Risk & Exposure</span>
+                                    <span class="px-3 py-1 rounded-full bg-cyber-orange/10 border border-cyber-orange/30 text-[9px] sm:text-[10px] font-mono text-cyber-orange uppercase">Module 06 // Risk & Exposure</span>
                                     <h3 class="font-display text-2xl sm:text-3xl md:text-4xl font-black text-white">Market <span class="text-cyber-orange">Coverage</span></h3>
                                 </div>
                                 <div class="grid grid-cols-2 gap-2 sm:gap-3">
@@ -454,6 +490,7 @@
                     <div id="page-indicator-3" class="size-1.5 sm:size-2 rounded-full bg-white/10 transition-all"></div>
                     <div id="page-indicator-4" class="size-1.5 sm:size-2 rounded-full bg-white/10 transition-all"></div>
                     <div id="page-indicator-5" class="size-1.5 sm:size-2 rounded-full bg-white/10 transition-all"></div>
+                    <div id="page-indicator-6" class="size-1.5 sm:size-2 rounded-full bg-white/10 transition-all"></div>
                 </div>
                 <div class="flex gap-2 sm:gap-4">
                     <button id="prevBtn" onclick="changeStudyPage(-1)" class="px-3 sm:px-6 py-1.5 sm:py-2 rounded-lg bg-white/5 border border-border text-[10px] sm:text-xs font-display font-bold text-white/40 hover:text-white hover:border-white/30 transition-all disabled:opacity-0" disabled>
@@ -491,7 +528,7 @@
         lucide.createIcons();
 
         let currentStudyPage = 1;
-        const totalStudyPages = 5;
+        const totalStudyPages = 6;
 
         function togglePresentation() {
             const modal = document.getElementById('presentationModal');

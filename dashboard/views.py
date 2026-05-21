@@ -11,28 +11,160 @@ import random
 import os
 from django.conf import settings
 
-def download_study_material(request, file_type):
-    """Serve the PDF or PPTX study materials with correct headers"""
-    # Use static files path
-    base_path = os.path.join(settings.BASE_DIR, 'dashboard', 'static', 'dashboard', 'docs')
+import io
+try:
+    from pptx import Presentation
+    from pptx.util import Inches, Pt
+except ImportError:
+    Presentation = None
+
+try:
+    from reportlab.lib.pagesizes import letter
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.units import inch
+except ImportError:
+    canvas = None
+
+def generate_pptx_study_pack():
+    if not Presentation:
+        return None
     
+    prs = Presentation()
+    
+    # Slide 1: Title
+    slide_layout = prs.slide_layouts[0]
+    slide = prs.slides.add_slide(slide_layout)
+    slide.shapes.title.text = "Monte Carlo Simulation in MC5"
+    slide.placeholders[1].text = "Advanced Stochastic Modelling for Professional Trading\nComputational Modelling Cornerstones"
+    
+    # Slide 2: Concepts
+    slide_layout = prs.slide_layouts[1]
+    slide = prs.slides.add_slide(slide_layout)
+    slide.shapes.title.text = "What is Monte Carlo Simulation?"
+    content = slide.placeholders[1].text_frame
+    content.text = "Cornerstone of stochastic computational modelling."
+    p = content.add_paragraph()
+    p.text = "Deterministic vs Stochastic Models:"
+    p.level = 1
+    p = content.add_paragraph()
+    p.text = "Deterministic: Single unique outcome from fixed inputs."
+    p.level = 2
+    p = content.add_paragraph()
+    p.text = "Stochastic: Pseudo-random sampling from probability distributions."
+    p.level = 2
+    
+    # Slide 3: Application
+    slide = prs.slides.add_slide(slide_layout)
+    slide.shapes.title.text = "Trading Engine Application"
+    content = slide.placeholders[1].text_frame
+    p = content.add_paragraph()
+    p.text = "Risk of Ruin: Probability of liquidation before profit target."
+    p = content.add_paragraph()
+    p.text = "Max Drawdown Distributions: 95th/99th percentile equity drops."
+    p = content.add_paragraph()
+    p.text = "Terminal Wealth Expectancy: Median, best-case, and worst-case scenarios."
+
+    # Slide 4: Paradigms
+    slide = prs.slides.add_slide(slide_layout)
+    slide.shapes.title.text = "Mathematical Paradigms"
+    content = slide.placeholders[1].text_frame
+    p = content.add_paragraph()
+    p.text = "1. Bootstrapping (Trade-Level Resampling):"
+    p.level = 0
+    p = content.add_paragraph()
+    p.text = "Randomly samples historical trades with replacement."
+    p.level = 1
+    p = content.add_paragraph()
+    p.text = "2. Geometric Brownian Motion (Price-Path Simulation):"
+    p.level = 0
+    p = content.add_paragraph()
+    p.text = "dS = μS dt + σS dZ (Stochastic Differential Equation)"
+    p.level = 1
+
+    # Slide 5: Implementation
+    slide = prs.slides.add_slide(slide_layout)
+    slide.shapes.title.text = "Python Implementation (Vectorized)"
+    content = slide.placeholders[1].text_frame
+    p = content.add_paragraph()
+    p.text = "Uses NumPy for high-performance vectorized path generation."
+    p = content.add_paragraph()
+    p.text = "np.random.choice(trade_pool, size=(num_trades, 10000))"
+    p.font.size = Pt(14)
+    p = content.add_paragraph()
+    p.text = "Allows for 10,000 simulations in milliseconds."
+
+    # Slide 6: Interpretation
+    slide = prs.slides.add_slide(slide_layout)
+    slide.shapes.title.text = "Interpreting MC5 Results"
+    content = slide.placeholders[1].text_frame
+    p = content.add_paragraph()
+    p.text = "95th Percentile Max Drawdown: The 'True' risk of the strategy."
+    p = content.add_paragraph()
+    p.text = "Risk of Ruin > 1%: Strategy is statistically unsafe."
+    p = content.add_paragraph()
+    p.text = "Solution: Scale down fractional risk (e.g. 2% -> 0.5%)."
+
+    buffer = io.BytesIO()
+    prs.save(buffer)
+    buffer.seek(0)
+    return buffer
+
+def generate_pdf_study_pack():
+    if not canvas:
+        return None
+    
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    
+    c.setFont("Helvetica-Bold", 24)
+    c.drawCentredString(width/2, height - 100, "MC5 QUANT ENGINE")
+    c.setFont("Helvetica", 16)
+    c.drawCentredString(width/2, height - 130, "Advanced Monte Carlo Framework")
+    
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(50, height - 200, "1. Monte Carlo Simulation Overview")
+    c.setFont("Helvetica", 11)
+    text = [
+        "Monte Carlo (MC) simulation is a cornerstone of stochastic computational modelling.",
+        "While a deterministic model yields a single, unique outcome from fixed inputs,",
+        "a stochastic model uses pseudo-random sampling from probability distributions",
+        "to simulate thousands of hypothetical futures.",
+        "",
+        "MC5 utilizes this to stress-test trading strategies under thousands of alternate",
+        "market conditions, calculating Risk of Ruin and Max Drawdown Distributions.",
+        "",
+        "2. Interpretation for MC5",
+        "- 95th Percentile Max Drawdown: If historical DD is 12% but MC shows 28%,",
+        "  the true risk exposure is 28% based on potential bad luck sequences.",
+        "- Risk of Ruin: If > 1%, strategy is statistically unsafe. Action: Reduce risk-per-trade."
+    ]
+    y = height - 220
+    for line in text:
+        c.drawString(50, y, line)
+        y -= 15
+        
+    c.showPage()
+    c.save()
+    buffer.seek(0)
+    return buffer
+
+def download_study_material(request, file_type):
+    """Dynamically generate and serve study materials"""
     if file_type == 'pdf':
-        file_path = os.path.join(base_path, 'MCQuantEngine_Study_Pack.pdf')
+        buffer = generate_pdf_study_pack()
+        if not buffer: return JsonResponse({'error': 'PDF library missing'}, status=500)
         content_type = 'application/pdf'
         filename = 'MCQuantEngine_Study_Pack.pdf'
     elif file_type == 'ppt':
-        file_path = os.path.join(base_path, 'MCQuantEngine_Presentation.pptx')
+        buffer = generate_pptx_study_pack()
+        if not buffer: return JsonResponse({'error': 'PPTX library missing'}, status=500)
         content_type = 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
         filename = 'MCQuantEngine_Presentation.pptx'
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid file type'}, status=404)
 
-    # On Vercel, if file is missing, we can't create it in the static folder.
-    # But since these are in the repo, they should be there.
-    if not os.path.exists(file_path):
-        return JsonResponse({'status': 'error', 'message': f'Material file {filename} not found in the deployment.'}, status=404)
-
-    return FileResponse(open(file_path, 'rb'), content_type=content_type, as_attachment=True, filename=filename)
+    return FileResponse(buffer, content_type=content_type, as_attachment=True, filename=filename)
 
 def landing(request):
     return render(request, 'dashboard/landing.html')
@@ -69,6 +201,8 @@ def dashboard(request):
         'patterns': candle_patterns[:5],
         'risk_metrics': risk_metrics,
         'equity_history': json.dumps(equity_history),
+        'market_alerts': market_alerts,
+        'trading_strategies': trading_strategies,
     }
     return render(request, 'dashboard/index.html', context)
 
@@ -294,6 +428,7 @@ def strategy_analytics(request):
     context = {
         'patterns': sorted_patterns,
         'trade_history': Trade.objects.filter(is_open=False).order_by('-close_time'),
+        'trading_strategies': trading_strategies,
         'stats': {
             'avg_win_rate': round(avg_win_rate, 1),
             'avg_score': round(avg_score, 2),

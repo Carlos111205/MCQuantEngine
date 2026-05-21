@@ -63,19 +63,21 @@
             <div class="grid grid-cols-12 gap-4">
                 <!-- Main Chart -->
                 <div class="col-span-12 lg:col-span-8 p-4 rounded-xl bg-card border border-border hud-corners relative">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-4">
-                            <select id="symbolSelector" class="bg-white/5 border border-border rounded px-3 py-1 text-xs font-mono text-white outline-none focus:border-cyber-cyan/50">
-                                <option value="EURUSD">EURUSD</option>
-                                <option value="GBPUSD">GBPUSD</option>
-                                <option value="XAUUSD">XAUUSD</option>
-                                <option value="BTCUSD">BTCUSD</option>
-                            </select>
-                            <div class="flex items-center gap-2">
-                                <span id="livePrice" class="text-lg font-display font-bold text-cyber-cyan glow-text">0.00000</span>
-                                <span id="priceChange" class="text-[10px] font-mono text-cyber-green">+0.00%</span>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex flex-wrap gap-2 p-1 bg-white/5 border border-border rounded-lg">
+                                <button onclick="selectSymbol('EURUSD')" id="btn-EURUSD" class="symbol-btn px-3 py-1.5 rounded-md text-[10px] font-mono transition-all bg-cyber-cyan text-black font-bold">EURUSD</button>
+                                <button onclick="selectSymbol('GBPUSD')" id="btn-GBPUSD" class="symbol-btn px-3 py-1.5 rounded-md text-[10px] font-mono transition-all text-white/60 hover:text-white hover:bg-white/5">GBPUSD</button>
+                                <button onclick="selectSymbol('XAUUSD')" id="btn-XAUUSD" class="symbol-btn px-3 py-1.5 rounded-md text-[10px] font-mono transition-all text-white/60 hover:text-white hover:bg-white/5">XAUUSD</button>
+                                <button onclick="selectSymbol('BTCUSD')" id="btn-BTCUSD" class="symbol-btn px-3 py-1.5 rounded-md text-[10px] font-mono transition-all text-white/60 hover:text-white hover:bg-white/5">BTCUSD</button>
+                            </div>
+                            <div class="h-8 w-px bg-border/50 mx-1"></div>
+                            <div class="flex flex-col">
+                                <span id="livePrice" class="text-xl font-display font-bold text-cyber-cyan glow-text leading-none">0.00000</span>
+                                <span id="priceChange" class="text-[9px] font-mono text-cyber-green mt-1">+0.00%</span>
                             </div>
                         </div>
+                        <input type="hidden" id="symbolSelector" value="EURUSD">
                         <div class="flex gap-2">
                             <div class="px-3 py-1 rounded-full bg-cyber-orange/10 border border-cyber-orange/30 flex items-center gap-2">
                                 <i data-lucide="zap" class="size-3 text-cyber-orange"></i>
@@ -86,10 +88,33 @@
                     <div id="tradingview_chart" class="w-full h-[450px]"></div>
                 </div>
 
-                <!-- Quick Trade Panel -->
-                <div class="col-span-12 lg:col-span-4">
-                    <div class="p-4 rounded-xl bg-card border border-border hud-corners h-full">
-                        <h3 class="text-[9px] font-mono text-cyber-cyan/60 uppercase tracking-widest mb-4">Quick Execution</h3>
+                <!-- Neural Intelligence & Execution Panel -->
+                <div class="col-span-12 lg:col-span-4 space-y-4">
+                    <!-- Live Signal Feed -->
+                    <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-[9px] font-mono text-cyber-cyan/60 uppercase tracking-widest">Neural Signal Feed</h3>
+                            <div class="flex items-center gap-1.5">
+                                <div class="size-1.5 rounded-full bg-cyber-green animate-pulse"></div>
+                                <span class="text-[8px] font-mono text-cyber-green uppercase">Live</span>
+                            </div>
+                        </div>
+                        <div id="live-signal-container" class="space-y-2 max-h-[180px] overflow-y-auto custom-scrollbar pr-1">
+                            {% for alert in market_alerts %}
+                            <div class="p-2 rounded bg-white/5 border-l-2 {% if alert.direction == 'BUY' %}border-cyber-green{% elif alert.direction == 'SELL' %}border-cyber-red{% else %}border-cyber-cyan{% endif %}">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-[8px] font-bold text-white">{{ alert.symbol }} // {{ alert.type }}</span>
+                                    <span class="text-[7px] font-mono text-white/40">{{ alert.time }}</span>
+                                </div>
+                                <p class="text-[9px] font-mono text-white/60 leading-tight">{{ alert.message }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Execution Engine -->
+                    <div class="p-4 rounded-xl bg-card border border-border hud-corners">
+                        <h3 class="text-[9px] font-mono text-cyber-cyan/60 uppercase tracking-widest mb-4">Tactical Execution</h3>
                         <div class="space-y-3">
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
@@ -116,19 +141,13 @@
                             </div>
                             <div class="grid grid-cols-1 gap-2">
                                 <button onclick="executeQuickTrade('BUY')" class="flex items-center justify-between px-4 py-3 rounded-lg bg-cyber-green/10 border border-cyber-green/30 hover:bg-cyber-green hover:text-black transition-all group">
-                                    <span class="text-[10px] font-display font-black group-hover:text-black">BUY</span>
+                                    <span class="text-[10px] font-display font-black group-hover:text-black uppercase">Initiate Long Position</span>
                                     <span id="buyPrice" class="text-xs font-mono">0.0000</span>
                                 </button>
                                 <button onclick="executeQuickTrade('SELL')" class="flex items-center justify-between px-4 py-3 rounded-lg bg-cyber-red/10 border border-cyber-red/30 hover:bg-cyber-red hover:text-white transition-all group">
-                                    <span class="text-[10px] font-display font-black group-hover:text-white">SELL</span>
+                                    <span class="text-[10px] font-display font-black group-hover:text-white uppercase">Initiate Short Position</span>
                                     <span id="sellPrice" class="text-xs font-mono">0.0000</span>
                                 </button>
-                            </div>
-                            <div class="pt-3 border-t border-border/50">
-                                <div class="flex justify-between text-[9px] font-mono mb-1">
-                                    <span class="text-white/40">Margin:</span>
-                                    <span id="marginLabel" class="text-white">$0.00</span>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -294,7 +313,7 @@
             'NAS100': 'CAPITALCOM:US100'
         };
 
-        tvWidget = new TradingView.widget({
+        window.tvWidget = new TradingView.widget({
             "autosize": true,
             "symbol": symbolMap[symbol] || "FX:EURUSD",
             "interval": "1",
@@ -421,6 +440,70 @@
     // Market Data Polling
     let isFirstLoad = true;
     let lastTradeCount = {{ open_trades|length }};
+    let priceHistory = [];
+
+    // Symbol Selection
+    function selectSymbol(symbol) {
+        document.getElementById('symbolSelector').value = symbol;
+        
+        // Update UI
+        document.querySelectorAll('.symbol-btn').forEach(btn => {
+            btn.classList.remove('bg-cyber-cyan', 'text-black', 'font-bold');
+            btn.classList.add('text-white/60', 'hover:text-white', 'hover:bg-white/5');
+        });
+        
+        const activeBtn = document.getElementById(`btn-${symbol}`);
+        activeBtn.classList.add('bg-cyber-cyan', 'text-black', 'font-bold');
+        activeBtn.classList.remove('text-white/60', 'hover:text-white', 'hover:bg-white/5');
+        
+        // Update Chart
+        if (window.tvWidget) {
+            window.tvWidget.setSymbol(symbol, '1', () => {});
+        } else {
+            // Re-init widget if not global
+            window.tvWidget = new TradingView.widget({
+                "autosize": true,
+                "symbol": symbol,
+                "interval": "1",
+                "timezone": "Etc/UTC",
+                "theme": "dark",
+                "style": "1",
+                "locale": "en",
+                "enable_publishing": false,
+                "hide_side_toolbar": false,
+                "allow_symbol_change": true,
+                "container_id": "tradingview_chart"
+            });
+        }
+        
+        // Trigger data update
+        updateMarketData();
+        showNotification('Market Context', `Engine switching focus to ${symbol} data feed.`, 'info');
+    }
+
+    function addNeuralSignal(symbol, type, message, direction) {
+        const container = document.getElementById('live-signal-container');
+        const colors = {
+            'BUY': 'border-cyber-green',
+            'SELL': 'border-cyber-red',
+            'NEUTRAL': 'border-cyber-cyan'
+        };
+        
+        const signal = document.createElement('div');
+        signal.className = `p-2 rounded bg-white/5 border-l-2 ${colors[direction]} animate-in slide-in-from-right-2 duration-300`;
+        signal.innerHTML = `
+            <div class="flex justify-between items-center mb-1">
+                <span class="text-[8px] font-bold text-white">${symbol} // ${type}</span>
+                <span class="text-[7px] font-mono text-white/40">Just now</span>
+            </div>
+            <p class="text-[9px] font-mono text-white/60 leading-tight">${message}</p>
+        `;
+        
+        container.prepend(signal);
+        if (container.children.length > 20) {
+            container.lastElementChild.remove();
+        }
+    }
 
     async function updateMarketData() {
         const symbol = document.getElementById('symbolSelector').value;
@@ -444,8 +527,28 @@
                     const oldPrice = parseFloat(document.getElementById('livePrice').innerText);
                     const newPrice = currentData.price;
                     
-                    // Logic based notifications
+                    // Logic based notifications (Market Intelligence)
+                    priceHistory.push(newPrice);
+                    if (priceHistory.length > 10) priceHistory.shift();
+
+                    if (priceHistory.length >= 5) {
+                        const first = priceHistory[0];
+                        const last = priceHistory[priceHistory.length - 1];
+                        const change = (last - first) / first;
+
+                        if (change > 0.001) {
+                            addNeuralSignal(symbol, 'BULLISH MOMENTUM', 'Strong buying pressure detected. Breaking resistance.', 'BUY');
+                            showNotification('Candlestick Alert', 'Strong Bullish momentum detected. Price is breaking resistance. ACTION: Consider scaling into LONG positions.', 'success');
+                            priceHistory = []; // Cooldown
+                        } else if (change < -0.001) {
+                            addNeuralSignal(symbol, 'BEARISH REJECTION', 'Heavy selling pressure identified. Trend reversal likely.', 'SELL');
+                            showNotification('Candlestick Alert', 'Heavy Bearish rejection identified. Selling pressure is increasing. ACTION: Tighten SL or consider SHORT entries.', 'error');
+                            priceHistory = []; // Cooldown
+                        }
+                    }
+
                     if (oldPrice > 0 && Math.abs(newPrice - oldPrice) / oldPrice > 0.0005) {
+                        addNeuralSignal(symbol, 'VOLATILITY SPIKE', 'Rapid price movement detected. Risk levels elevated.', 'NEUTRAL');
                         showNotification('Volatility Alert', `Rapid movement detected in ${symbol}. Monitor risk exposure.`, 'warning');
                     }
 
